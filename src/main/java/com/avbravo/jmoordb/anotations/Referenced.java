@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
-public @interface Relationships {
+public @interface Referenced {
  String document();
  String field();
  boolean ispadre() default false;
