@@ -8,6 +8,7 @@ package com.avbravo.jmoordb.persistence;
 import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.PrimaryKey;
 import com.avbravo.jmoordb.interfaces.AbstractInterface;
+import com.avbravo.jmoordb.interfaces.FindInterface;
 import com.avbravo.jmoordb.util.Util;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
@@ -19,7 +20,7 @@ import java.util.List;
  * @author avbravo
  * @param <T>
  */
-public abstract class AbstractFacade<T> implements AbstractInterface{
+public abstract class AbstractFacade<T> implements AbstractInterface,FindInterface{
 private Class<T> entityClass;
     private String database;
     private String collection;
@@ -40,6 +41,11 @@ private Class<T> entityClass;
 
     @Override
     public Boolean save(Object t) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Object findById(Object t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
