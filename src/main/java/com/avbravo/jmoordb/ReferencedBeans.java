@@ -5,10 +5,16 @@
  */
 package com.avbravo.jmoordb;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *
  * @author avbravo
  */
+@Getter
+@Setter
 public class ReferencedBeans {
-    
+    private String name;
+    private String type;
 }

@@ -1,19 +1,19 @@
-package com.avbravo.jmoordb.anotations ;
+package com.avbravo.jmoordb.anotations;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-/**
-*
-* @author 
-*/
 
+/**
+ *
+ * @author
+ */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.FIELD})
 public @interface Entity {
- String document();
- 
-}
 
+    String document();
+
+    String dateformat() default ("dd/MM/yyyy HH:mm:ss a");
+
+    boolean lazy() default true;
+}

@@ -6,6 +6,7 @@
 package com.avbravo.jmoordb.interfaces;
 
 import com.mongodb.client.MongoDatabase;
+import java.lang.reflect.Field;
 import org.bson.Document;
 
 /**
@@ -15,8 +16,8 @@ import org.bson.Document;
 public interface AbstractInterface <T>{
      public MongoDatabase getDB() ;
     
-     public Boolean save(T t);
-     
-     
+//     public Boolean save(T t);
+//     public Document toDocument(T t);
+   
      
 }

@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
 public @interface Referenced {
- String document();
+ String documment();
  String field();
  boolean ispadre() default false;
 }
