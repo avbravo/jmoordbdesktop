@@ -17,4 +17,16 @@ import lombok.Setter;
 public class ReferencedBeans {
     private String name;
     private String type;
+    private String document;
+    private String field;
+
+    public ReferencedBeans() {
+    }
+
+    @Override
+    public String toString() {
+        return "ReferencedBeans{" + "name=" + name + ", type=" + type + '}';
+    }
+    
+    
 }
