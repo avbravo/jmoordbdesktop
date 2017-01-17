@@ -3,9 +3,12 @@ Java Mapper for MongoDB and OrientDB
 
 Es un Framework para integrar MongoDB/OrientDB con las aplicaciones Java de una manera sencilla.
 
-Soporta documentos embebidos mediante la anotación @Embedded
+Sintaxis similiar a JPA
 
-Soporta relaciones mediante la anotación @Referenced
+##Soporta
+ Documentos embebidos mediante la anotación @Embedded
+
+  Documentos relacionados mediante la anotación @Referenced
 
 #Entity
 @Getter
