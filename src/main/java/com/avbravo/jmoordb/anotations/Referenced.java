@@ -15,6 +15,6 @@ import java.lang.annotation.Target;
 public @interface Referenced {
  String documment();
  String field();
-// boolean ispadre() default false;
+ boolean lazy() default false;
 }
 
