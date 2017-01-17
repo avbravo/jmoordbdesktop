@@ -33,31 +33,50 @@ public class JavaToDocument {
         }
         this.embeddedBeansList = embeddedBeansList;
         this.referencedBeansList = referencedBeansList;
-        System.out.println("==========================<toDocument>==========================");
+        
         Document dbObject = new Document();
         ClassDescriptor classDescriptor = cache.get(obj.getClass());
         for (FieldDescriptor fieldDescriptor : classDescriptor.getFields()) {
 
-            System.out.println("            [Analizando :  " + fieldDescriptor.getName() + " ]");
+      //      System.out.println("            [Analizando :  " + fieldDescriptor.getName() + " ]");
             dbObject.put(fieldDescriptor.getName(), toDBObjectRecursive(obj, fieldDescriptor, embeddedBeansList, referencedBeansList));
 
         }
-        System.out.println("                 return dbObject() " + dbObject);
-        System.out.println("===========================</toDocument>==========================");
+        return dbObject;
+    }
+/**
+ * Se utiliza cuando se pasan List<Entity> referenciados
+ * @param obj
+ * @param idreferenciado
+ * @return 
+ */
+    private Document toDocumentReferenced(Object obj, String idreferenciado) {
+        if (obj == null) {
+            return null;
+        }
+
+        
+        Document dbObject = new Document();
+        ClassDescriptor classDescriptor = cache.get(obj.getClass());
+        for (FieldDescriptor fieldDescriptor : classDescriptor.getFields()) {
+            if (fieldDescriptor.getName().equals(idreferenciado)) {
+        dbObject.put(fieldDescriptor.getName(), toDBObjectRecursive(obj, fieldDescriptor, embeddedBeansList, referencedBeansList));
+            }
+
+        }
         return dbObject;
     }
 
     @SuppressWarnings("rawtypes")
     public Object toDBObjectRecursive(Object object, FieldDescriptor fieldDescriptor, List<EmbeddedBeans> embeddedBeansList, List<ReferencedBeans> referencedBeansList) {
-        System.out.println("                [toDBObjectRecursive()]");
+        
         if (object == null) {
             return null;
         }
         if (fieldDescriptor.isArray()) {
-            System.out.println("==========================");
+            
             System.out.println(" isArray");
-            System.out.println("==========================");
-            if (ReflectionUtils.isSimpleClass(fieldDescriptor.getField().getType().getComponentType())) {
+                        if (ReflectionUtils.isSimpleClass(fieldDescriptor.getField().getType().getComponentType())) {
                 return fieldDescriptor.getFieldValue(object);
             } else {
                 Object[] array = (Object[]) fieldDescriptor.getFieldValue(object);
@@ -68,62 +87,74 @@ public class JavaToDocument {
                 return fieldObj;
             }
         } else if (fieldDescriptor.isIterable()) {
-            System.out.println("==========================");
-            System.out.println(" fieldDescriptor.isIterable()");
-            System.out.println("==========================");
+           
+
             Iterable col = (Iterable) fieldDescriptor.getFieldValue(object);
             BasicDBList fieldObj = new BasicDBList();
             if (col != null) {
                 for (Object el : col) {
+                    
                     if (ReflectionUtils.isSimpleClass(el.getClass())) {
+                    
                         fieldObj.add(el);
                     } else {
-                        fieldObj.add(toDocument(el, embeddedBeansList, referencedBeansList));
+                    
+                        if (isEmbedded(fieldDescriptor.getName())) {
+
+                            fieldObj.add(toDocument(el, embeddedBeansList, referencedBeansList));
+                        } else {
+                            if (isReferenced(fieldDescriptor.getName())) {
+                                //aris
+                                ClassDescriptor classD = cache.get(el.getClass());
+                                for (FieldDescriptor fieldDesc : classD.getFields()) {
+                                    
+                                    if (fieldDesc.getName().equals(referencedBeans.getField())) {
+                                        fieldObj.add(toDocumentReferenced(el, referencedBeans.getField()));
+                                    }
+                                }
+                                //aris
+
+                            } else {
+                                System.out.println("..........no es embebido ni referenciado");
+                            }
+                        }
+
                     }
                 }
             }
+            
             return fieldObj;
         } else if (fieldDescriptor.isObject()) {
-            System.out.println("________________________________________________________________");
-            System.out.println("                     if(fieldDescriptor.isObject())");
+            
+            //System.out.println("           fieldDescriptor.isObject()        ");
             if (isEmbedded(fieldDescriptor.getName())) {
-                System.out.println("                     [Es embebido]");
+                //Embebido
                 Object fieldValue = fieldDescriptor.getFieldValue(object);
                 if (fieldValue == null) {
                     return null;
                 }
                 DBObject dbObject = new BasicDBObject();
                 for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
-
-                    System.out.println("                     childDescriptor.getName() " + childDescriptor.getName() + " toDBObjectRecursive(fieldValue, childDescriptor) " + toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));
-
                     dbObject.put(childDescriptor.getName(), toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));
                 }
-                System.out.println("                          return dbObject " + dbObject);
-                System.out.println("                   if(fieldDescriptor.isObject())");
-                System.out.println("________________________________________________________________________");
                 return dbObject;
 
             } else {
 
                 if (isReferenced(fieldDescriptor.getName())) {
-                  //  System.out.println("                     [Es Referenced]");
+                    //Referenciado
                     Object fieldValue = fieldDescriptor.getFieldValue(object);
                     if (fieldValue == null) {
                         return null;
                     }
                     DBObject dbObject = new BasicDBObject();
                     for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
-                      //  System.out.println("--------->"+childDescriptor.getName());
+
                         if (childDescriptor.getName().equals(referencedBeans.getField())) {
                             dbObject.put(childDescriptor.getName(), toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));
                         }
-                        //System.out.println("                     childDescriptor.getName() " + childDescriptor.getName() + " toDBObjectRecursive(fieldValue, childDescriptor) " + toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));
 
                     }
-                    System.out.println("                          return dbObject " + dbObject);
-                    System.out.println("                   if(fieldDescriptor.isObject())");
-                    System.out.println("________________________________________________________________________");
                     return dbObject;
 
                 } else {
@@ -151,7 +182,7 @@ public class JavaToDocument {
             return dbObject;
         } else {
             //valor del atributo que no es otra clase
-            System.out.println("                  [Value: fieldDescriptor.getFieldValue(object) " + fieldDescriptor.getFieldValue(object) + " ]");
+           
             return fieldDescriptor.getFieldValue(object);
         }
     }
@@ -179,7 +210,7 @@ public class JavaToDocument {
             for (ReferencedBeans eb : referencedBeansList) {
                 if (eb.getName().equals(name)) {
                     referencedBeans = eb;
-                    System.out.println("Referenced() "+eb.toString());
+                    //   System.out.println("Referenced() "+eb.toString());
                     return true;
                 }
             }
