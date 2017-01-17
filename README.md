@@ -32,6 +32,7 @@ public class Paises {
 
 #Facade
 Las operaciones CRUD se implementan atraves de un Facade.
+
    paisesFacade.save(paises);
    
    
