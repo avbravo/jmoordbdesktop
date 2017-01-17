@@ -243,32 +243,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
      * @param t2
      * @return devuelve el Pojo convertido a documento.
      */
-    public Document getDocument(T t2) {
-        Document doc = new Document();
-        try {
-
-            for (FieldBeans f : fieldBeansList) {
-
-                if (f.getIsEmbedded()) {
-                    //hay que crearlo en el documento
-                } else {
-                    if (f.getIsReferenced()) {
-                        // solo debe buscar la referencia en la anotacion del otro beans.
-
-                    } else {
-                        doc.append(f.getName(), getReflectionValue(f.getName(), t2));
-                    }
-                }
-
-            }
-
-        } catch (Exception ex) {
-            exception = ex;
-        }
-        //   doc.toBsonDocument(t, codecRegistry);
-        return doc;
-    }
-
+  
     public Document toDocument(Object t) {
         return javaToDocument.toDocument(t, embeddedBeansList, referencedBeansList);
     }
@@ -278,36 +253,5 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    /**
-     *
-     * @param name campo del entity que sera convertido a getCampo y se invocara
-     * @param t2
-     * @return un object correspondiente a la ejecucion del metodo get
-     */
-    public Object getReflectionValue(String name, T t2) {
-        Object v = new Object();
-
-        String getName = "get" + util.letterToUpper(name);
-        try {
-            Object t = entityClass.newInstance();
-
-            Method method;
-            try {
-                Class noparams[] = {};
-                method = entityClass.getDeclaredMethod(getName, noparams);
-                v = method.invoke(t2);
-                return v;
-            } catch (Exception e) {
-                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-                exception = new Exception("getReflectionValue() ", e);
-            }
-
-        } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "getReflectionValue()").log(Level.SEVERE, null, e);
-            exception = new Exception("getReflectionValue)) ", e);
-        }
-        System.out.println("getName() " + getName + " value " + v);
-        return v;
-    }
-
+   
 }

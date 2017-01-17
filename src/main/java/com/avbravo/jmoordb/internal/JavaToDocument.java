@@ -33,7 +33,7 @@ public class JavaToDocument {
         }
         this.embeddedBeansList = embeddedBeansList;
         this.referencedBeansList = referencedBeansList;
-        System.out.println("*******************<toDocument>*****************************");
+        System.out.println("==========================<toDocument>==========================");
         Document dbObject = new Document();
         ClassDescriptor classDescriptor = cache.get(obj.getClass());
         for (FieldDescriptor fieldDescriptor : classDescriptor.getFields()) {
@@ -43,7 +43,7 @@ public class JavaToDocument {
 
         }
         System.out.println("                 return dbObject() " + dbObject);
-        System.out.println("*******************</toDocument>*****************************");
+        System.out.println("===========================</toDocument>==========================");
         return dbObject;
     }
 
@@ -107,14 +107,14 @@ public class JavaToDocument {
             } else {
 
                 if (isReferenced(fieldDescriptor.getName())) {
-                    System.out.println("                     [Es Referenced]");
+                  //  System.out.println("                     [Es Referenced]");
                     Object fieldValue = fieldDescriptor.getFieldValue(object);
                     if (fieldValue == null) {
                         return null;
                     }
                     DBObject dbObject = new BasicDBObject();
                     for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
-                        System.out.println("--------->"+childDescriptor.getName());
+                      //  System.out.println("--------->"+childDescriptor.getName());
                         if (childDescriptor.getName().equals(referencedBeans.getField())) {
                             dbObject.put(childDescriptor.getName(), toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));
                         }
