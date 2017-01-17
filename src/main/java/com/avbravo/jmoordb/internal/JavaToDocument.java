@@ -115,7 +115,7 @@ public class JavaToDocument {
                     DBObject dbObject = new BasicDBObject();
                     for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
                         System.out.println("--------->"+childDescriptor.getName());
-                        if (childDescriptor.getName().equals(referencedBeans.getName())) {
+                        if (childDescriptor.getName().equals(referencedBeans.getField())) {
                             dbObject.put(childDescriptor.getName(), toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));
                         }
                         //System.out.println("                     childDescriptor.getName() " + childDescriptor.getName() + " toDBObjectRecursive(fieldValue, childDescriptor) " + toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));

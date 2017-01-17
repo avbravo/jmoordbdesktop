@@ -34,9 +34,9 @@ import org.bson.Document;
  * @param <T>
  */
 public abstract class AbstractFacade<T> implements AbstractInterface, FindInterface {
-    
- JavaToDocument javaToDocument = new JavaToDocument();
- 
+
+    JavaToDocument javaToDocument = new JavaToDocument();
+
     private Class<T> entityClass;
     private String database;
     private String collection;
@@ -72,9 +72,9 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
         /**
          * lee las anotaciones @Id para obtener los PrimaryKey del documento
          */
-         /**
-             * Descompone la anotacion entity
-             */
+        /**
+         * Descompone la anotacion entity
+         */
 //            Entity entity = entityClass.getClass().getAnnotation(Entity.class);
 //System.out.println("Descomponiendo el entity");
 //System.out.println("document: " + entity.document());
@@ -82,30 +82,32 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
 //System.out.println("dateformat:" + entity.dateformat());
 
         final Field[] fields = entityClass.getDeclaredFields();
-        for (final Field variable : fields) {
-            Annotation anotacion = variable.getAnnotation(Id.class);
-           Annotation anotacionEmbedded = variable.getAnnotation(Embedded.class);
-            Annotation anotacionReferenced = variable.getAnnotation(Referenced.class);
-           
+        for (final Field field : fields) {
+            Annotation anotacion = field.getAnnotation(Id.class);
+            Annotation anotacionEmbedded = field.getAnnotation(Embedded.class);
+            Annotation anotacionReferenced = field.getAnnotation(Referenced.class);
 
+            Embedded embedded = field.getAnnotation(Embedded.class);
+            Referenced referenced = field.getAnnotation(Referenced.class);
 
-            variable.setAccessible(true);
+            field.setAccessible(true);
 
             FieldBeans fieldBeans = new FieldBeans();
             fieldBeans.setIsKey(false);
             fieldBeans.setIsEmbedded(false);
             fieldBeans.setIsReferenced(false);
-            fieldBeans.setName(variable.getName());
-            fieldBeans.setType(variable.getType().getName());
+            fieldBeans.setName(field.getName());
+            fieldBeans.setType(field.getType().getName());
 
             //PrimaryKey
             if (anotacion != null) {
-                verifyPrimaryKey(variable, anotacion);
+                verifyPrimaryKey(field, anotacion);
                 fieldBeans.setIsKey(true);
 
             }
             if (anotacionEmbedded != null) {
-                verifyEmbedded(variable, anotacion);
+
+                verifyEmbedded(field, anotacionEmbedded);
                 fieldBeans.setIsEmbedded(true);
 
             }
@@ -115,7 +117,8 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
 //
 //            }
             if (anotacionReferenced != null) {
-                verifyReferenced(variable, anotacion);
+
+                verifyReferenced(field, anotacionReferenced, referenced);
                 fieldBeans.setIsReferenced(true);
 
             }
@@ -191,24 +194,23 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
         }
         return false;
     }
-
-    private Boolean verifyReferenced(Field variable, Annotation anotacion) {
+/**
+ * guarda la informacion de la anotacion
+ * @param variable
+ * @param anotacion
+ * @param referenced
+ * @return 
+ */
+    private Boolean verifyReferenced(Field variable, Annotation anotacion, Referenced referenced) {
         try {
-            // final Embedded anotacionPK = (Embedded) anotacionEmbedded;
+
+//  Referenced anotacionRef = (Referenced) anotacion;
             ReferencedBeans referencedBeans = new ReferencedBeans();
             referencedBeans.setName(variable.getName());
             referencedBeans.setType(variable.getType().getName());
-          //  Class<? extends Referenced> cls = this.getClass(); 
-         //   Method mth = cls.getMethod("myAnnotationTestMethod");
-//       Referenced ref  = variable.getAnnotations(Referenced.class);
-                 
-//            Annotation[] variable.getAnnotations();
-//            anotacion.
-          //  Referenced myAnno = mth.getAnnotation(Referenced.class);
-//            System.out.println("key: "+myAnno.documment());
-//            System.out.println("value: "+myAnno.field());
-
-//            referencedBeans.setDocument(anotacion.);
+            referencedBeans.setDocument(referenced.documment());
+            referencedBeans.setField(referenced.field());
+          
             referencedBeansList.add(referencedBeans);
             return true;
         } catch (Exception e) {
@@ -217,7 +219,6 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
         return false;
     }
 
-    
     @Override
     public MongoDatabase getDB() {
         MongoDatabase db = getMongoClient().getDatabase(database);
@@ -227,11 +228,10 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
 //    @Override
     public Boolean save(T t) {
         try {
-         
 
-          //  getDB().getCollection(collection).insertOne(getDocument(t));
+            //  getDB().getCollection(collection).insertOne(getDocument(t));
             getDB().getCollection(collection).insertOne(toDocument(t));
-        return true;
+            return true;
         } catch (Exception ex) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -239,28 +239,27 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
     }
 
     /**
-     * 
+     *
      * @param t2
      * @return devuelve el Pojo convertido a documento.
      */
-    public Document getDocument(T t2) {  
+    public Document getDocument(T t2) {
         Document doc = new Document();
         try {
-   
+
             for (FieldBeans f : fieldBeansList) {
-                
-                if(f.getIsEmbedded()){
+
+                if (f.getIsEmbedded()) {
                     //hay que crearlo en el documento
-                }
-                else{
-                    if (f.getIsReferenced()){
+                } else {
+                    if (f.getIsReferenced()) {
                         // solo debe buscar la referencia en la anotacion del otro beans.
-                      
-                    }else{
-                         doc.append(f.getName(), getReflectionValue(f.getName(), t2 ));
+
+                    } else {
+                        doc.append(f.getName(), getReflectionValue(f.getName(), t2));
                     }
                 }
-               
+
             }
 
         } catch (Exception ex) {
@@ -270,10 +269,10 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
         return doc;
     }
 
-    
-    public Document toDocument(Object t){
-        return javaToDocument.toDocument(t,embeddedBeansList, referencedBeansList);
+    public Document toDocument(Object t) {
+        return javaToDocument.toDocument(t, embeddedBeansList, referencedBeansList);
     }
+
     @Override
     public Object findById(Object t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -287,28 +286,27 @@ public abstract class AbstractFacade<T> implements AbstractInterface, FindInterf
      */
     public Object getReflectionValue(String name, T t2) {
         Object v = new Object();
-        
-         String getName = "get" + util.letterToUpper(name);
+
+        String getName = "get" + util.letterToUpper(name);
         try {
             Object t = entityClass.newInstance();
 
             Method method;
             try {
-              Class noparams[] = {};
-                method = entityClass.getDeclaredMethod(getName,noparams);
-                 v = method.invoke(t2);
-                 return v;
+                Class noparams[] = {};
+                method = entityClass.getDeclaredMethod(getName, noparams);
+                v = method.invoke(t2);
+                return v;
             } catch (Exception e) {
                 Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
                 exception = new Exception("getReflectionValue() ", e);
             }
 
-           
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "getReflectionValue()").log(Level.SEVERE, null, e);
             exception = new Exception("getReflectionValue)) ", e);
         }
-        System.out.println("getName() "+getName  + " value "+v);
+        System.out.println("getName() " + getName + " value " + v);
         return v;
     }
 

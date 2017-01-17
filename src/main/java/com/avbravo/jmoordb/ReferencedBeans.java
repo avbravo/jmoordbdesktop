@@ -25,8 +25,10 @@ public class ReferencedBeans {
 
     @Override
     public String toString() {
-        return "ReferencedBeans{" + "name=" + name + ", type=" + type + '}';
+        return "ReferencedBeans{" + "name=" + name + ", type=" + type + ", document=" + document + ", field=" + field + '}';
     }
+
+  
     
     
 }
