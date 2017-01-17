@@ -22,7 +22,7 @@ public class Paises {
   
   @Embedded
   
-  private Ubicacion ubicacion;
+  private Planetas planetas;
   
   @Referenced(document="Continentes",field="idcontinente)
   
