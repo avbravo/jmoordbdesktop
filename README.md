@@ -9,15 +9,25 @@ Soporta relaciones mediante la anotación @Referenced
 
 #Entity
 @Getter
-@Settet
+
+@Setter
+
 public class Paises {
+
   @Id
+  
   private String idpais;
+  
   private String pais;
+  
   @Embedded
+  
   private Ubicacion ubicacion;
+  
   @Referenced(document="Continentes",field="idcontinente)
+  
   private Continentes continentes;
+  
 }
 
 #Facade
