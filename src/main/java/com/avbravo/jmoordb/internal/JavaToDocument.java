@@ -203,7 +203,11 @@ public class JavaToDocument {
         }
         return false;
     }
-
+/**
+ * 
+ * @param name
+ * @return 
+ */
     private Boolean isReferenced(String name) {
         try {
 

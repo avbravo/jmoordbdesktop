@@ -326,7 +326,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
-
+new JmoordbException("find()");
         }
 
         return (T) t1;
@@ -345,7 +345,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 @Override
                 public void apply(final Document document) {
                     try {
-                        t1 = (T) documentToJava.fromDBObject(entityClass, document);
+                        t1 = (T) documentToJava.fromDocument(entityClass, document,embeddedBeansList, referencedBeansList);
                     } catch (Exception e) {
                         Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
                         exception = new Exception("find() ", e);

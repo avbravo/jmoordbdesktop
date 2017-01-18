@@ -10,7 +10,8 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Entity {
-
+    String database() default "";
+    String collecction() default "";
     String document();
 
     String dateformat() default ("dd/MM/yyyy HH:mm:ss a");
