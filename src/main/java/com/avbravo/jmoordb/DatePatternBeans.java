@@ -3,13 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.interfaces;
+package com.avbravo.jmoordb;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author avbravo
  */
-public interface FindInterface<T> {
-    public T findById(T t);
-    
+@Getter
+@Setter
+public class DatePatternBeans {
+    private String name;
+    private String type;
+  String dateformat;
 }

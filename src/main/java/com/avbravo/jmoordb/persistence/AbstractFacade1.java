@@ -13,7 +13,6 @@ import com.avbravo.jmoordb.anotations.Embedded;
 import com.avbravo.jmoordb.anotations.Id;
 import com.avbravo.jmoordb.anotations.Referenced;
 import com.avbravo.jmoordb.interfaces.AbstractInterface;
-import com.avbravo.jmoordb.interfaces.FindInterface;
 import com.avbravo.jmoordb.internal.ClassDescriptorsCache;
 import com.avbravo.jmoordb.util.Util;
 import com.mongodb.MongoClient;
@@ -32,7 +31,7 @@ import org.bson.Document;
  * @author avbravo
  * @param <T>
  */
-public abstract class AbstractFacade1<T> implements AbstractInterface, FindInterface {
+public abstract class AbstractFacade1<T> implements AbstractInterface {
  private ClassDescriptorsCache cache = new ClassDescriptorsCache();
     private Class<T> entityClass;
     private String database;

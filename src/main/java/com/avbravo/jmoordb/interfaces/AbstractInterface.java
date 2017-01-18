@@ -15,7 +15,10 @@ import org.bson.Document;
  */
 public interface AbstractInterface <T>{
      public MongoDatabase getDB() ;
-    
+//     public Document findOne();
+      public T findById(T t);
+     public T find(String key, Object value);
+     
 //     public Boolean save(T t);
 //     public Document toDocument(T t);
    
