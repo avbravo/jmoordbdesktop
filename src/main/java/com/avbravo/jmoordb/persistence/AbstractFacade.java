@@ -214,6 +214,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             referencedBeans.setType(variable.getType().getName());
             referencedBeans.setDocument(referenced.documment());
             referencedBeans.setField(referenced.field());
+            referencedBeans.setFacade(referenced.facade());
 
             referencedBeansList.add(referencedBeans);
             return true;
@@ -276,10 +277,10 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         return javaToDocument.toDocument(t, embeddedBeansList, referencedBeansList);
     }
 
-    @Override
-    public Object findById(Object t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+//    @Override
+//    public Object findById(Object t) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 
     /**
      *

@@ -243,10 +243,7 @@ public abstract class AbstractFacade1<T> implements AbstractInterface {
     }
 
     
-    @Override
-    public Object findById(Object t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 
     /**
      *
