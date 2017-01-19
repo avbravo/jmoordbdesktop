@@ -33,14 +33,18 @@ public class Paises {
   
 }
 
-#Facade
+<h2>Facade</h2>
 Las operaciones CRUD se implementan atraves de un Facade.
-  ##save()
+
+  <h3>save()</h3>
+  
    Paises paises = new Paises("pa","Panama");
+   
    paisesFacade.save(paises);
    
-  ##find()
+   <h3>find()</h3>
    Paises paises = paisesFacade.find("idpais","pa");
+   
    
    
    
