@@ -99,25 +99,10 @@ public class DocumentToJava<T> {
                 System.out.println(" isList()  ]" + fieldDescriptor.getName());
                 if (isEmbedded(fieldDescriptor.getName())) {
                     System.out.println("     [es Embebido]");
-                    System.out.println("definiendo rows");
-                    BasicDBList rows = new BasicDBList();
-                    System.out.println("----Add");
-                    rows.add(dbObject);
-                    System.out.println("---->add <----");
-
-//                System.out.println("DBCursor");
-//              DBCursor d =(DBCursor) dbObject;
-//                System.out.println("definido");
-//              while(d.hasNext()){
-//                  System.out.println("d.hasNext");
-//                  DBObject row = d.next();
-//                  rows.add( row );
-//                  System.out.println("addd row "+row);
-//              }
-                    System.out.println("-");
+                    
                     System.out.println("dbObject " + dbObject.toString());
-
-                    BasicDBList dbList = (BasicDBList) dbObject;
+ List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+//                    BasicDBList dbList = (BasicDBList) dbObject;
                     System.out.println("paso -1");
                     List list = (List) fieldDescriptor.newInstance();
                     System.out.println("paso 0.a");
@@ -137,25 +122,11 @@ public class DocumentToJava<T> {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
                         System.out.println("     [es Referenciado]");
-                        System.out.println("definiendo rows");
-                        BasicDBList rows = new BasicDBList();
-                        System.out.println("----Add");
-                        rows.add(dbObject);
-                        System.out.println("---->add <----");
 
-//                System.out.println("DBCursor");
-//              DBCursor d =(DBCursor) dbObject;
-//                System.out.println("definido");
-//              while(d.hasNext()){
-//                  System.out.println("d.hasNext");
-//                  DBObject row = d.next();
-//                  rows.add( row );
-//                  System.out.println("addd row "+row);
-//              }
                         System.out.println("-");
                         System.out.println("dbObject " + dbObject.toString());
-
-                        BasicDBList dbList = (BasicDBList) dbObject;
+                        List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+//                        BasicDBList dbList = (BasicDBList) dbObject;
                         System.out.println("paso -1");
                         List list = (List) fieldDescriptor.newInstance();
                         System.out.println("paso 0.a");
