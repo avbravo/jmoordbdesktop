@@ -9,7 +9,6 @@ import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.ReferencedBeans;
 import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.lang.reflect.Array;
@@ -24,7 +23,7 @@ import org.bson.Document;
  *
  * @author avbravo
  */
-public class DocumentToJava<T> {
+public class DocumentToJava1<T> {
 
     private ClassDescriptorsCache cache = new ClassDescriptorsCache();
     List<EmbeddedBeans> embeddedBeansList = new ArrayList<>();
@@ -96,53 +95,25 @@ public class DocumentToJava<T> {
                 Object[] arrayPrototype = (Object[]) Array.newInstance(fieldType.getComponentType(), 0);
                 return list.toArray(arrayPrototype);
             } else if (fieldDescriptor.isList()) {
-                System.out.println(" isList()  ]" + fieldDescriptor.getName());
+                System.out.println(" isList()  ]"+fieldDescriptor.getName());
                 if (isEmbedded(fieldDescriptor.getName())) {
                     System.out.println("     [es Embebido]");
-                    System.out.println("definiendo rows");
-                    BasicDBList rows = new BasicDBList();
-                    System.out.println("----Add");
-                    rows.add(dbObject);
-                    System.out.println("---->add <----");
-
-//                System.out.println("DBCursor");
-//              DBCursor d =(DBCursor) dbObject;
-//                System.out.println("definido");
-//              while(d.hasNext()){
-//                  System.out.println("d.hasNext");
-//                  DBObject row = d.next();
-//                  rows.add( row );
-//                  System.out.println("addd row "+row);
-//              }
-                    System.out.println("-");
-                    System.out.println("dbObject " + dbObject.toString());
-
-                    BasicDBList dbList = (BasicDBList) dbObject;
-                    System.out.println("paso -1");
-                    List list = (List) fieldDescriptor.newInstance();
-                    System.out.println("paso 0.a");
-                    for (Object listEl : dbList) {
-
-                        if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-                            System.out.println("paso  1a");
-                            list.add(listEl);
-                        } else {
-                            System.out.println("paso  1b");
-                            list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
-                        }
-                    }
-                    System.out.println("paso  1c");
-                    return list;
+                    
                 } else {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
                         System.out.println("     [es Referenciado]");
-                        System.out.println("definiendo rows");
-                        BasicDBList rows = new BasicDBList();
-                        System.out.println("----Add");
-                        rows.add(dbObject);
-                        System.out.println("---->add <----");
 
+                    } else {
+                        System.out.println("    No es[Embebido] ni  [Referenciado]");
+                    }
+                }
+                System.out.println("definiendo rows");
+              BasicDBList rows = new BasicDBList();
+                System.out.println("----Add");
+              rows.add(dbObject);
+                System.out.println("---->add <----");
+                
 //                System.out.println("DBCursor");
 //              DBCursor d =(DBCursor) dbObject;
 //                System.out.println("definido");
@@ -152,43 +123,26 @@ public class DocumentToJava<T> {
 //                  rows.add( row );
 //                  System.out.println("addd row "+row);
 //              }
-                        System.out.println("-");
-                        System.out.println("dbObject " + dbObject.toString());
+                  
+                System.out.println("-");
+                System.out.println("dbObject "+dbObject.toString());
+                
+                BasicDBList dbList = (BasicDBList) dbObject;
+                System.out.println("paso -1");
+                List list = (List) fieldDescriptor.newInstance();
+                System.out.println("paso 0.a");
+                for (Object listEl : dbList) {
 
-                        BasicDBList dbList = (BasicDBList) dbObject;
-                        System.out.println("paso -1");
-                        List list = (List) fieldDescriptor.newInstance();
-                        System.out.println("paso 0.a");
-                        for (Object listEl : dbList) {
-
-                            if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-                                System.out.println("paso  1a");
-                                list.add(listEl);
-                            } else {
-                                System.out.println("paso  1b");
-                                list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
-                            }
-                        }
-                        System.out.println("paso  1c");
-                        return list;
+                    if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                        System.out.println("paso  1a");
+                        list.add(listEl);
                     } else {
-                        System.out.println("    No es[Embebido] ni  [Referenciado]");
-                        List<BasicDBObject> foundDocument = (ArrayList<BasicDBObject>) dbObject;
-                        List list = (List) fieldDescriptor.newInstance();
-
-                        for (Object listEl : foundDocument) {
-                            if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-                                list.add(listEl);
-                            } else {
-
-                                list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
-                            }
-                        }
-
-                        return list;
+                        System.out.println("paso  1b");
+                        list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
                     }
                 }
-
+                System.out.println("paso  1c");
+                return list;
             } else if (fieldDescriptor.isSet()) {
                 System.out.println(" isSet()  ]");
                 BasicDBList dbList = (BasicDBList) dbObject;
