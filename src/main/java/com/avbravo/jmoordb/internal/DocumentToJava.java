@@ -183,6 +183,7 @@ public class DocumentToJava <T> {
                         paramString[1] = String.class;
                        method = cls.getDeclaredMethod("findById",  paramString);
    //                  
+//                        String[] param = {"idplaneta", "tierra"};
                         String[] param = {"idplaneta", "tierra"};
                        
                     t1 =(T)  method.invoke(obj, param);
