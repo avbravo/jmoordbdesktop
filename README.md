@@ -27,7 +27,7 @@ public class Paises {
   
   private Planetas planetas;
   
-  @Referenced(document="Continentes",field="idcontinente)
+  @Referenced(document="Continentes",field="idcontinente, lazy=true, facade="com.avbravo.ejb.ContinentesFacade)
   
   private Continentes continentes;
   
@@ -35,8 +35,13 @@ public class Paises {
 
 #Facade
 Las operaciones CRUD se implementan atraves de un Facade.
-
+  ##save()
+   Paises paises = new Paises("pa","Panama");
    paisesFacade.save(paises);
+   
+  ##find()
+   Paises paises = paisesFacade.find("idpais","pa");
+   
    
    
 
