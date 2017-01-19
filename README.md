@@ -17,19 +17,19 @@ Sintaxis similiar a JPA
 
 public class Paises {
 
-  @Id
+   @Id
   
-  private String idpais;
+   private String idpais;
   
-  private String pais;
+   private String pais;
   
-  @Embedded
+   @Embedded
   
-  private Planetas planetas;
+   private Planetas planetas;
   
-  @Referenced(document="Continentes",field="idcontinente, lazy=true, facade="com.avbravo.ejb.ContinentesFacade)
+   @Referenced(document="Continentes",field="idcontinente, lazy=true, facade="com.avbravo.ejb.ContinentesFacade)
   
-  private Continentes continentes;
+   private Continentes continentes;
   
 }
 
