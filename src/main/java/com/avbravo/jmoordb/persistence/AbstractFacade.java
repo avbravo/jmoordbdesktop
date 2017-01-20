@@ -215,6 +215,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             referencedBeans.setDocument(referenced.documment());
             referencedBeans.setField(referenced.field());
             referencedBeans.setFacade(referenced.facade());
+            referencedBeans.setLazy(referenced.lazy());
 
             referencedBeansList.add(referencedBeans);
             return true;

@@ -99,24 +99,22 @@ public class DocumentToJava<T> {
                 System.out.println(" isList()  ]" + fieldDescriptor.getName());
                 if (isEmbedded(fieldDescriptor.getName())) {
                     System.out.println("     [es Embebido]");
-                    
-                    System.out.println("dbObject " + dbObject.toString());
- List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
-//                    BasicDBList dbList = (BasicDBList) dbObject;
-                    System.out.println("paso -1");
+
+                    List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+//               
                     List list = (List) fieldDescriptor.newInstance();
-                    System.out.println("paso 0.a");
+
                     for (Object listEl : dbList) {
 
                         if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-                            System.out.println("paso  1a");
+
                             list.add(listEl);
                         } else {
-                            System.out.println("paso  1b");
+
                             list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
                         }
                     }
-                    System.out.println("paso  1c");
+
                     return list;
                 } else {
                     if (isReferenced(fieldDescriptor.getName())) {
@@ -197,11 +195,11 @@ public class DocumentToJava<T> {
                 System.out.println("   [isObject] " + fieldDescriptor.getName() + " ]");
                 if (isEmbedded(fieldDescriptor.getName())) {
                     System.out.println("[es Embebido]");
-                    System.out.println("--> creare una instancia nueva");
+
                     Object object = fieldDescriptor.newInstance();
 
                     for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
-                        System.out.println("       [childDescriptor.getField() " + childDescriptor.getField().getName() + " ]");
+
                         try {
                             childDescriptor.getField()
                                     .set(object,
@@ -211,75 +209,66 @@ public class DocumentToJava<T> {
                             throw new JmoordbException("Failed to set field value " + childDescriptor.getName(), e);
                         }
                     }
-                    System.out.println("fromDBObjectRecursive.return object; " + object);
+
                     return object;
                 } else {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
-                        System.out.println("     [es Referenciado]");
+                        System.out.println("     [es Referenciado] ");
 
-                        ///---- usar reflexion Aqui
-                        Object object = fieldDescriptor.newInstance();
-
-                        System.out.println("-----------------------------------------------");
-
-                        System.out.println("-----------------------------------------------");
-                        Class cls = Class.forName(referencedBeans.getFacade());
-                        Object obj = cls.newInstance();
-                        System.out.println("paso 2");
-                        Method method;
-                        Class[] paramString = new Class[2];
-                        paramString[0] = String.class;
-                        paramString[1] = String.class;
-                        method = cls.getDeclaredMethod("findById", paramString);
-                        //                  
-//                        String[] param = {"idplaneta", "tierra"};
-                        String value = "";
-                        for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
-                            System.out.println("............... " + childDescriptor.getName() + " referenced : " + referencedBeans.getField());
-                            if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
-                                System.out.println("-------> a");
-                                Object x = ((Document) dbObject).get(childDescriptor.getName());
-                                value = (String) childDescriptor.getSimpleValue(x);
-
-                                System.out.println("----> <value>: " + value);
-
+                        if (referencedBeans.getLazy()) {
+                            System.out.println("[   es Lazy no carga los relacionados ]");
+                            Object object = fieldDescriptor.newInstance();
+                            for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
+                                try {
+                                    if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
+                                        
+                                        childDescriptor.getField()
+                                                .set(object,
+                                                        fromDocumentRecursive(((Document) dbObject).get(childDescriptor.getName()),
+                                                                childDescriptor));
+                                    }
+                                } catch (Exception e) {
+                                    throw new JmoordbException("Failed to set field value " + childDescriptor.getName(), e);
+                                }
                             }
+                            return object;
+
+//                       
+                        } else {
+                            System.out.println("[   No Lazy, carga los relacionados ]");
+                            //cargar todos los relacionads
+                            Object object = fieldDescriptor.newInstance();
+
+                            Class cls = Class.forName(referencedBeans.getFacade());
+                            Object obj = cls.newInstance();
+
+                            Method method;
+                            Class[] paramString = new Class[2];
+                            paramString[0] = String.class;
+                            paramString[1] = String.class;
+                            method = cls.getDeclaredMethod("findById", paramString);
+                            //                  
+
+                            String value = "";
+                            for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
+
+                                if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
+
+                                    Object x = ((Document) dbObject).get(childDescriptor.getName());
+                                    value = (String) childDescriptor.getSimpleValue(x);
+
+                                }
+                            }
+
+                            String[] param = {referencedBeans.getField(), value};
+
+                            t1 = (T) method.invoke(obj, param);
+
+                            return t1;
+
                         }
 
-                        System.out.println("---> key " + referencedBeans.getField() + " value " + value);
-
-//                            System.out.println("        [childDescriptor.getField() " + childDescriptor.getField().getName() + " ]");
-//                            try {
-//                                childDescriptor.getField()
-//                                        .set(object,
-//                                                fromDocumentRecursive(((Document) dbObject).get(childDescriptor.getName()),
-//                                                        childDescriptor));
-//                            } catch (Exception e) {
-//                                throw new JmoordbException("Failed to set field value " + childDescriptor.getName(), e);
-//                            }
-                        //  }
-                        String[] param = {referencedBeans.getField(), value};
-
-                        t1 = (T) method.invoke(obj, param);
-                        System.out.println("V " + t1.toString());
-                        return t1;
-
-                        //    System.out.println("-----------------------------------------------");
-//
-//                        for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
-//                            System.out.println("        [childDescriptor.getField() " + childDescriptor.getField().getName() + " ]");
-//                            try {
-//                                childDescriptor.getField()
-//                                        .set(object,
-//                                                fromDocumentRecursive(((Document) dbObject).get(childDescriptor.getName()),
-//                                                        childDescriptor));
-//                            } catch (Exception e) {
-//                                throw new JmoordbException("Failed to set field value " + childDescriptor.getName(), e);
-//                            }
-//                        }
-//                        System.out.println("fromDBObjectRecursive.return object; " + object);
-//                        return object;
                     } else {
                         System.out.println("                     [No es Referenced]");
                         new JmoordbException("@Embedded or @Reference is required for this field " + fieldDescriptor.getName());
