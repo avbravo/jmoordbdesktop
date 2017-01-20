@@ -120,76 +120,85 @@ public class DocumentToJava<T> {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
                         System.out.println("     [es Referenciado]");
-                         if (referencedBeans.getLazy()) {
+                        if (referencedBeans.getLazy()) {
                             System.out.println("[    Lazy == true no carga los relacionados ]");
-           
-                        List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
-                        List list = (List) fieldDescriptor.newInstance();
-                        for (Object listEl : dbList) {
-                            if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-                                 list.add(listEl);
-                            } else {
-                                list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+
+                            List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+                            List list = (List) fieldDescriptor.newInstance();
+                            for (Object listEl : dbList) {
+                                if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                                    list.add(listEl);
+                                } else {
+                                    list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                                }
                             }
-                        }
 
-                        return list;
-                         }else{
-                              System.out.println("[    Lazy == false carga los relacionados ]");
-                        
-                        System.out.println("    dbObject " + dbObject.toString());
-                        List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
-                        List list = (List) fieldDescriptor.newInstance();
-                        for (Object listEl : dbList) {
+                            return list;
+                        } else {
+                            System.out.println("[    Lazy == false carga los relacionados ]");
 
-                            if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-                                System.out.println("paso  1a");
-                                list.add(listEl);
-                            } else {
-                                System.out.println("paso  1b");
-                                System.out.println("listEl "+listEl);
-                                System.out.println("fieldDescriptor.getField() "+fieldDescriptor.getField() + " value "+fieldDescriptor.getDefaultValue());
-                                list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                            System.out.println("    dbObject " + dbObject.toString());
+                            List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+                            List list = (List) fieldDescriptor.newInstance();
+
+                            for (Object listEl : dbList) {
+
+                                if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                                    System.out.println("paso  1a");
+                                    list.add(listEl);
+                                    
+                                    
+                                } else {
+                                    System.out.println("paso  1b");
+                                    System.out.println("listEl " + listEl);
+                                 
+//                                    Class cls = Class.forName(referencedBeans.getFacade());
+//                                    Object obj = cls.newInstance();
+//                                     Method method;
+//                            Class[] paramString = new Class[2];
+//                            paramString[0] = String.class;
+//                            paramString[1] = String.class;
+//                            method = cls.getDeclaredMethod("findById", paramString);
+
+                                    //Aqui 
+                                    System.out.println("fieldDescriptor.getField() " + fieldDescriptor.getField() + " value " + fieldDescriptor.getDefaultValue());
+                                    list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                                }
                             }
-                        }
-                        System.out.println("paso  1c");
-                             System.out.println("referencedBeans.... "+referencedBeans.toString());
-                                                    Object object = fieldDescriptor.newInstance();
-                                                    System.out.println("paso 2c");
-
-                            Class cls = Class.forName(referencedBeans.getFacade());
+                            System.out.println("paso  1c");
+                            System.out.println("referencedBeans.... " + referencedBeans.toString());
+                            Object object = fieldDescriptor.newInstance();
+                            System.out.println("paso 2c");
+  Class cls = Class.forName(referencedBeans.getFacade());
                             Object obj = cls.newInstance();
- System.out.println("paso 3c");
+                            System.out.println("paso 3c");
                             Method method;
                             Class[] paramString = new Class[2];
                             paramString[0] = String.class;
                             paramString[1] = String.class;
                             method = cls.getDeclaredMethod("findById", paramString);
                             //                  
- System.out.println("paso 4c");
+                            System.out.println("paso 4c");
                             String value = "";
                             for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
- System.out.println("paso 5c");
+                                System.out.println("paso 5c");
                                 if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
- System.out.println("paso 6c");
+                                    System.out.println("paso 6c");
                                     Object x = ((Document) dbObject).get(childDescriptor.getName());
                                     value = (String) childDescriptor.getSimpleValue(x);
- System.out.println("paso 7c");
+                                    System.out.println("paso 7c");
                                 }
                             }
- System.out.println("paso 8c value: "+value);
+                            System.out.println("paso 8c value: " + value);
                             String[] param = {referencedBeans.getField(), value};
- System.out.println("paso 9c");
+                            System.out.println("paso 9c");
                             t1 = (T) method.invoke(obj, param);
-                             System.out.println("t1 "+t1.toString());
-                           // return t1;
-                        
-                        
-                        
-                        return list;
-                         }
+                            System.out.println("t1 " + t1.toString());
+                            // return t1;
 
-                        
+                            return list;
+                        }
+
                     } else {
                         System.out.println("    No es[Embebido] ni  [Referenciado]");
                         List<BasicDBObject> foundDocument = (ArrayList<BasicDBObject>) dbObject;
@@ -272,7 +281,7 @@ public class DocumentToJava<T> {
                             for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
                                 try {
                                     if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
-                                        
+
                                         childDescriptor.getField()
                                                 .set(object,
                                                         fromDocumentRecursive(((Document) dbObject).get(childDescriptor.getName()),
