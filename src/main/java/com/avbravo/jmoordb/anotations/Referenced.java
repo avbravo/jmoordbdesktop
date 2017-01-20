@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
 public @interface Referenced {
  String documment();
  String field();
+ String javatype() default "String";
  String facade();
  boolean lazy() default false;
 }

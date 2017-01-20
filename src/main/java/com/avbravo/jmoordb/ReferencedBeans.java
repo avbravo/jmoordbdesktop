@@ -19,6 +19,7 @@ public class ReferencedBeans {
     private String type;
     private String document;
     private String field;
+    private String javatype;
     private String facade;
     private Boolean lazy;
 

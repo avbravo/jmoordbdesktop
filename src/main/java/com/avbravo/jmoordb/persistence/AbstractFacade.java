@@ -39,8 +39,8 @@ import org.bson.Document;
  */
 public abstract class AbstractFacade<T> implements AbstractInterface {
 
-    JavaToDocument javaToDocument = new JavaToDocument();
-    DocumentToJava documentToJava = new DocumentToJava();
+ private   JavaToDocument javaToDocument = new JavaToDocument();
+    private DocumentToJava documentToJava = new DocumentToJava();
     T t1;
     private Class<T> entityClass;
     private String database;
@@ -214,6 +214,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             referencedBeans.setType(variable.getType().getName());
             referencedBeans.setDocument(referenced.documment());
             referencedBeans.setField(referenced.field());
+            referencedBeans.setJavatype(referenced.javatype());
             referencedBeans.setFacade(referenced.facade());
             referencedBeans.setLazy(referenced.lazy());
 
@@ -319,6 +320,22 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
     @Override
     public T find(String key, Object value) {
+        try {
+            Object t = entityClass.newInstance();
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
+            t1 = iterableSimple(iterable);
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("find() ", e);
+new JmoordbException("find()");
+        }
+
+        return (T) t1;
+    }
+    @Override
+    public T find(String key, Integer value) {
         try {
             Object t = entityClass.newInstance();
             MongoDatabase db = getMongoClient().getDatabase(database);

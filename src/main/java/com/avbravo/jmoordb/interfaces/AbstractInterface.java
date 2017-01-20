@@ -17,7 +17,10 @@ public interface AbstractInterface <T>{
      public MongoDatabase getDB() ;
 //     public Document findOne();
       public T findById(String key, String value);
+      public T findById(String key, Integer value);
+      
      public T find(String key, Object value);
+     public T find(String key, Integer value);
      
 //     public Boolean save(T t);
 //     public Document toDocument(T t);
