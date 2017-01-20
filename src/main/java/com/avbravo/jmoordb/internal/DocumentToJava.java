@@ -120,8 +120,23 @@ public class DocumentToJava<T> {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
                         System.out.println("     [es Referenciado]");
+                         if (referencedBeans.getLazy()) {
+                            System.out.println("[    Lazy == true no carga los relacionados ]");
+           
+                        List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+                        List list = (List) fieldDescriptor.newInstance();
+                        for (Object listEl : dbList) {
+                            if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                                 list.add(listEl);
+                            } else {
+                                list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                            }
+                        }
 
-                        System.out.println("-");
+                        return list;
+                         }else{
+                              System.out.println("[    Lazy == false carga los relacionados ]");
+                              System.out.println("-");
                         System.out.println("dbObject " + dbObject.toString());
                         List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
 //                        BasicDBList dbList = (BasicDBList) dbObject;
@@ -140,6 +155,9 @@ public class DocumentToJava<T> {
                         }
                         System.out.println("paso  1c");
                         return list;
+                         }
+
+                        
                     } else {
                         System.out.println("    No es[Embebido] ni  [Referenciado]");
                         List<BasicDBObject> foundDocument = (ArrayList<BasicDBObject>) dbObject;
@@ -217,7 +235,7 @@ public class DocumentToJava<T> {
                         System.out.println("     [es Referenciado] ");
 
                         if (referencedBeans.getLazy()) {
-                            System.out.println("[   es Lazy no carga los relacionados ]");
+                            System.out.println("[    Lazy == true no carga los relacionados ]");
                             Object object = fieldDescriptor.newInstance();
                             for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
                                 try {
@@ -236,7 +254,7 @@ public class DocumentToJava<T> {
 
 //                       
                         } else {
-                            System.out.println("[   No Lazy, carga los relacionados ]");
+                            System.out.println("[   Lazy == false carga los relacionados ]");
                             //cargar todos los relacionads
                             Object object = fieldDescriptor.newInstance();
 
