@@ -136,13 +136,10 @@ public class DocumentToJava<T> {
                         return list;
                          }else{
                               System.out.println("[    Lazy == false carga los relacionados ]");
-                              System.out.println("-");
-                        System.out.println("dbObject " + dbObject.toString());
+                        
+                        System.out.println("    dbObject " + dbObject.toString());
                         List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
-//                        BasicDBList dbList = (BasicDBList) dbObject;
-                        System.out.println("paso -1");
                         List list = (List) fieldDescriptor.newInstance();
-                        System.out.println("paso 0.a");
                         for (Object listEl : dbList) {
 
                             if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
@@ -150,10 +147,45 @@ public class DocumentToJava<T> {
                                 list.add(listEl);
                             } else {
                                 System.out.println("paso  1b");
+                                System.out.println("listEl "+listEl);
+                                System.out.println("fieldDescriptor.getField() "+fieldDescriptor.getField() + " value "+fieldDescriptor.getDefaultValue());
                                 list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
                             }
                         }
                         System.out.println("paso  1c");
+                             System.out.println("referencedBeans.... "+referencedBeans.toString());
+                                                    Object object = fieldDescriptor.newInstance();
+                                                    System.out.println("paso 2c");
+
+                            Class cls = Class.forName(referencedBeans.getFacade());
+                            Object obj = cls.newInstance();
+ System.out.println("paso 3c");
+                            Method method;
+                            Class[] paramString = new Class[2];
+                            paramString[0] = String.class;
+                            paramString[1] = String.class;
+                            method = cls.getDeclaredMethod("findById", paramString);
+                            //                  
+ System.out.println("paso 4c");
+                            String value = "";
+                            for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
+ System.out.println("paso 5c");
+                                if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
+ System.out.println("paso 6c");
+                                    Object x = ((Document) dbObject).get(childDescriptor.getName());
+                                    value = (String) childDescriptor.getSimpleValue(x);
+ System.out.println("paso 7c");
+                                }
+                            }
+ System.out.println("paso 8c value: "+value);
+                            String[] param = {referencedBeans.getField(), value};
+ System.out.println("paso 9c");
+                            t1 = (T) method.invoke(obj, param);
+                             System.out.println("t1 "+t1.toString());
+                           // return t1;
+                        
+                        
+                        
                         return list;
                          }
 
