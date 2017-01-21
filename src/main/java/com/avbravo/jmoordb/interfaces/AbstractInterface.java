@@ -22,6 +22,8 @@ public interface AbstractInterface <T>{
      public T find(String key, Object value);
      public T find(String key, Integer value);
      
+   //  public Boolean save(T t,Boolean... verifyID);
+     
 //     public Boolean save(T t);
 //     public Document toDocument(T t);
    

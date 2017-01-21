@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.persistence;
+package com.avbravo.jmoordb.facade;
 
 import com.avbravo.jmoordb.DatePatternBeans;
 import com.avbravo.jmoordb.EmbeddedBeans;
@@ -37,7 +37,7 @@ import org.bson.Document;
  * @author avbravo
  * @param <T>
  */
-public abstract class AbstractFacade<T> implements AbstractInterface {
+public abstract class AbstractFacade<T> implements  AbstractInterface {
 
  private   JavaToDocument javaToDocument = new JavaToDocument();
     private DocumentToJava documentToJava = new DocumentToJava();
@@ -256,10 +256,19 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         return db;
     }
 
-//    @Override
-    public Boolean save(T t) {
-        try {
 
+    public Boolean save(T t, Boolean... verifyID) {
+        try {
+ Boolean verificate= false;
+        if (verifyID.length != 0) {
+          verificate = verifyID[0];
+
+        }
+        if(verificate ){
+            //Buscar llave primaria
+        }else{
+            //se asume que ya se busco
+        }
             //  getDB().getCollection(collection).insertOne(getDocument(t));
             getDB().getCollection(collection).insertOne(toDocument(t));
             return true;
@@ -381,4 +390,8 @@ new JmoordbException("find()");
 
         return (T) t1;
     }
+
+   
+
+    
 }

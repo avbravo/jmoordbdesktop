@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.persistence;
+package com.avbravo.jmoordb.facade;
 
 import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.FieldBeans;
