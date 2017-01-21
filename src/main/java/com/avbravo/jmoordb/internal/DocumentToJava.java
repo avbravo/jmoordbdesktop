@@ -135,7 +135,6 @@ public class DocumentToJava<T> {
                             return list;
                         } else {
                             System.out.println("[    Lazy == false carga los relacionados ]");
-                          
 
                             List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
                             List list = (List) fieldDescriptor.newInstance();
@@ -143,9 +142,7 @@ public class DocumentToJava<T> {
                             for (Object listEl : dbList) {
 
                                 if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-
                                     list.add(listEl);
-
                                 } else {
                                     Document doc = (Document) listEl;
                                     Class[] paramString = new Class[2];
@@ -153,16 +150,15 @@ public class DocumentToJava<T> {
                                     Class cls = Class.forName(referencedBeans.getFacade());
                                     Object obj = cls.newInstance();
                                     Method method;
-
                                     String value = "";
                                     if (referencedBeans.getJavatype().toLowerCase().equals("integer")) {
-                                    //@Id de tipo Integer
+                                        //@Id de tipo Integer
                                         Integer n = (Integer) doc.get(referencedBeans.getField());
-                                        method = cls.getDeclaredMethod("findById", String.class,Integer.class);
-                                        
-                                        t1 = (T) method.invoke(obj, referencedBeans.getField(),n);
+                                        method = cls.getDeclaredMethod("findById", String.class, Integer.class);
 
-                                    } else {                                       
+                                        t1 = (T) method.invoke(obj, referencedBeans.getField(), n);
+
+                                    } else {
                                         value = (String) doc.get(referencedBeans.getField());
                                         paramString[1] = String.class;
                                         method = cls.getDeclaredMethod("findById", paramString);
@@ -170,8 +166,6 @@ public class DocumentToJava<T> {
                                         String[] param = {referencedBeans.getField(), value};
                                         t1 = (T) method.invoke(obj, param);
                                     }
-
-                                  
 
                                     list.add(t1);
 
@@ -236,11 +230,8 @@ public class DocumentToJava<T> {
                 //   System.out.println("   [isObject] " + fieldDescriptor.getName() + " ]");
                 if (isEmbedded(fieldDescriptor.getName())) {
                     //     System.out.println("  [es Embebido]");
-
                     Object object = fieldDescriptor.newInstance();
-
                     for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
-
                         try {
                             childDescriptor.getField()
                                     .set(object,
@@ -250,15 +241,13 @@ public class DocumentToJava<T> {
                             throw new JmoordbException("Failed to set field value " + childDescriptor.getName(), e);
                         }
                     }
-
                     return object;
                 } else {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
-                        //  System.out.println("     [es Referenciado] ");
-
+                       // System.out.println("         [es Referenciado] ");
                         if (referencedBeans.getLazy()) {
-                            //   System.out.println("[    {Lazy == true} No carga los relacionados ]");
+                        //    System.out.println("[    {Lazy == true} No carga los relacionados ]");
                             Object object = fieldDescriptor.newInstance();
                             for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
                                 try {
@@ -274,44 +263,54 @@ public class DocumentToJava<T> {
                                 }
                             }
                             return object;
-
 //                       
                         } else {
                             //   System.out.println("[   Lazy == false carga los relacionados ]");
                             //cargar todos los relacionads
-                            Object object = fieldDescriptor.newInstance();
-
+                          Object object = fieldDescriptor.newInstance();
                             Class cls = Class.forName(referencedBeans.getFacade());
                             Object obj = cls.newInstance();
-
                             Method method;
-                            Class[] paramString = new Class[2];
-                            paramString[0] = String.class;
-                            paramString[1] = String.class;
-                            method = cls.getDeclaredMethod("findById", paramString);
-                            //                  
 
-                            String value = "";
-                            for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
+                            //             
+                            if (referencedBeans.getJavatype().toLowerCase().equals("integer")) {
+                                //@Id de tipo Integer
+                                Class[] paramString = new Class[2];
+                              method = cls.getDeclaredMethod("findById", String.class,Integer.class);
 
-                                if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
-
-                                    Object x = ((Document) dbObject).get(childDescriptor.getName());
-                                    value = (String) childDescriptor.getSimpleValue(x);
-
+                               Integer value = 0;
+                                for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
+                                    if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
+                                        Object x = ((Document) dbObject).get(childDescriptor.getName());
+                                        value = (Integer) childDescriptor.getSimpleValue(x);
+                                    }
                                 }
+                          
+                                t1 = (T) method.invoke(obj, referencedBeans.getField(),value);
+                          
+                                
+                            } else {
+                                Class[] paramString = new Class[2];
+                                paramString[0] = String.class;
+                                paramString[1] = String.class;
+                                method = cls.getDeclaredMethod("findById", paramString);
+
+                                String value = "";
+                                for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
+                                    if (childDescriptor.getField().getName().equals(referencedBeans.getField())) {
+                                        Object x = ((Document) dbObject).get(childDescriptor.getName());
+                                        value = (String) childDescriptor.getSimpleValue(x);
+                                    }
+                                }
+                                String[] param = {referencedBeans.getField(), value};
+                                t1 = (T) method.invoke(obj, param);
                             }
-
-                            String[] param = {referencedBeans.getField(), value};
-
-                            t1 = (T) method.invoke(obj, param);
 
                             return t1;
 
                         }
-
                     } else {
-                        System.out.println("                     [No es Referenced]");
+                        System.out.println("                   [No es Referenced]");
                         new JmoordbException("@Embedded or @Reference is required for this field " + fieldDescriptor.getName());
                         return new Document();
                     }
