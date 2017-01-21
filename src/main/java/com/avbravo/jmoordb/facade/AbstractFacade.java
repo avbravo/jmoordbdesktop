@@ -340,6 +340,47 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         }
         return doc;
     }
+    
+     /**
+     * Crea un Index en base a la llave primaria
+     *
+     * @return
+     */
+    private Document getIndexPrimaryKey() {
+        Document doc = new Document();
+        try {
+            primaryKeyList.forEach((p) -> {
+                doc.put(p.getName(), 1);
+            });
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "getIndexPrimaryKey()").log(Level.SEVERE, null, e);
+            exception = new Exception("getIndexPrimaryKey() ", e);
+        }
+        return doc;
+    }
+    
+    /**
+     *
+     * @param doc
+     * @return
+     */
+    public Boolean createIndex(Document... doc) {
+        Document docIndex = new Document();
+        try {
+            if (doc.length != 0) {
+                docIndex = doc[0];
+
+            } else {
+                docIndex = getIndexPrimaryKey();
+            }
+            getDB().getCollection(collection).createIndex(docIndex);
+            return true;
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "createIndex()").log(Level.SEVERE, null, e);
+            exception = new Exception("createIndex() ", e);
+        }
+        return false;
+    }
    /**
     * Busca por la llave primaria del documento
     * @param t2
