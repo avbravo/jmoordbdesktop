@@ -37,9 +37,9 @@ import org.bson.Document;
  * @author avbravo
  * @param <T>
  */
-public abstract class AbstractFacade<T> implements  AbstractInterface {
+public abstract class AbstractFacade<T> implements AbstractInterface {
 
- private   JavaToDocument javaToDocument = new JavaToDocument();
+    private JavaToDocument javaToDocument = new JavaToDocument();
     private DocumentToJava documentToJava = new DocumentToJava();
     T t1;
     private Class<T> entityClass;
@@ -55,6 +55,14 @@ public abstract class AbstractFacade<T> implements  AbstractInterface {
     List<FieldBeans> fieldBeansList = new ArrayList<>();
     Exception exception;
     Util util = new Util();
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public void setException(Exception exception) {
+        this.exception = exception;
+    }
 
     protected abstract MongoClient getMongoClient();
 
@@ -256,25 +264,38 @@ public abstract class AbstractFacade<T> implements  AbstractInterface {
         return db;
     }
 
-
+    /**
+     * 
+     * @param t
+     * @param verifyID
+     * @return 
+     */
     public Boolean save(T t, Boolean... verifyID) {
         try {
- Boolean verificate= false;
-        if (verifyID.length != 0) {
-          verificate = verifyID[0];
+            Boolean verificate = true;
+            if (verifyID.length != 0) {
+                verificate = verifyID[0];
 
-        }
-        if(verificate ){
-            //Buscar llave primaria
-        }else{
-            //se asume que ya se busco
-        }
-            //  getDB().getCollection(collection).insertOne(getDocument(t));
-            getDB().getCollection(collection).insertOne(toDocument(t));
-            return true;
+            }
+            if (verificate) {
+                //Buscar llave primaria
+                T t_ = find(findDocPrimaryKey(t));
+
+                if (t.equals(null)) {
+                 // no lo encontro
+                } else {
+                    exception = new Exception("A document with the primary key already exists.");
+                    return false;
+                }
+            } 
+
+                getDB().getCollection(collection).insertOne(toDocument(t));
+                return true;
+          
         } catch (Exception ex) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
             new JmoordbException("save() " + ex.getLocalizedMessage());
+            exception = new Exception("save() "+ex.getLocalizedMessage());
         }
         return false;
     }
@@ -288,7 +309,34 @@ public abstract class AbstractFacade<T> implements  AbstractInterface {
         return javaToDocument.toDocument(t, embeddedBeansList, referencedBeansList);
     }
 
+    /**
+     *
+     * @return Document() correspondiente a la llave primaria
+     */
 
+    private Document findDocPrimaryKey(T t2) {
+        Document doc = new Document();
+        try {
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+                String name = "get" + util.letterToUpper(p.getName());
+                Method method;
+                try {
+                    System.out.println("---Metodoget() ");
+                    method = entityClass.getDeclaredMethod(name);
+
+                    doc.put(util.letterToUpper(p.getName()), method.invoke(t2));
+                } catch (Exception e) {
+                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    exception = new Exception("getDocumentPrimaryKey() ", e);
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            exception = new Exception("getDocumentPrimaryKey() ", e);
+        }
+        return doc;
+    }
 
     @Override
     public T find(String key, Object value) {
@@ -301,15 +349,16 @@ public abstract class AbstractFacade<T> implements  AbstractInterface {
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
-new JmoordbException("find()");
+            new JmoordbException("find()");
         }
 
         return (T) t1;
     }
+
     /**
-     * 
+     *
      * @param document
-     * @return 
+     * @return
      */
     @Override
     public T find(Document document) {
@@ -322,11 +371,12 @@ new JmoordbException("find()");
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
-new JmoordbException("find()");
+            new JmoordbException("find()");
         }
 
         return (T) t1;
     }
+
     @Override
     public T find(String key, Integer value) {
         try {
@@ -338,18 +388,17 @@ new JmoordbException("find()");
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
-new JmoordbException("find()");
+            new JmoordbException("find()");
         }
 
         return (T) t1;
     }
-    
-    
 
     /**
      * Internamente recorre el iterable
+     *
      * @param iterable
-     * @return 
+     * @return
      */
     private T iterableSimple(FindIterable<Document> iterable) {
         try {
@@ -357,7 +406,7 @@ new JmoordbException("find()");
                 @Override
                 public void apply(final Document document) {
                     try {
-                        t1 = (T) documentToJava.fromDocument(entityClass, document,embeddedBeansList, referencedBeansList);
+                        t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
                     } catch (Exception e) {
                         Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
                         exception = new Exception("find() ", e);
@@ -375,7 +424,4 @@ new JmoordbException("find()");
         return (T) t1;
     }
 
-   
-
-    
 }

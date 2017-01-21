@@ -5,6 +5,8 @@
  */
 package com.avbravo.jmoordb.util;
 
+import com.avbravo.jmoordb.JmoordbException;
+
 /**
  *
  * @author avbravo
@@ -50,5 +52,16 @@ public class Util {
           System.out.println("letterToLower() " + ex.getLocalizedMessage());
         }
         return texto;
+    }
+    
+    public String traductor(String texto, String idioma){
+        String traduccion = "";
+        try {
+            
+        } catch (Exception e) {
+            System.out.println("traductor() "+e.getLocalizedMessage());
+            new JmoordbException("traductor() "+e.getLocalizedMessage());
+        }
+ return traduccion;       
     }
 }
