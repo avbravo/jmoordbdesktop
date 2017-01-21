@@ -279,9 +279,10 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             }
             if (verificate) {
                 //Buscar llave primaria
-                T t_ = find(findDocPrimaryKey(t));
 
-                if (t.equals(null)) {
+                T t_ = (T) find(findDocPrimaryKey(t));
+      
+                if (t_ == null) {
                  // no lo encontro
                 } else {
                     exception = new Exception("A document with the primary key already exists.");
@@ -290,6 +291,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             } 
 
                 getDB().getCollection(collection).insertOne(toDocument(t));
+                 System.out.println("---f--->");
                 return true;
           
         } catch (Exception ex) {
@@ -322,10 +324,11 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 String name = "get" + util.letterToUpper(p.getName());
                 Method method;
                 try {
-                    System.out.println("---Metodoget() ");
+                 
                     method = entityClass.getDeclaredMethod(name);
 
-                    doc.put(util.letterToUpper(p.getName()), method.invoke(t2));
+                    doc.put(p.getName(), method.invoke(t2));
+           
                 } catch (Exception e) {
                     Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
                     exception = new Exception("getDocumentPrimaryKey() ", e);
@@ -336,6 +339,35 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             exception = new Exception("getDocumentPrimaryKey() ", e);
         }
         return doc;
+    }
+   /**
+    * Busca por la llave primaria del documento
+    * @param t2
+    * @return 
+    */
+    private T findById(T t2) {
+        Document doc = new Document();
+        try {
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+                String name = "get" + util.letterToUpper(p.getName());
+                Method method;
+                try {
+                  
+                    method = entityClass.getDeclaredMethod(name);
+
+                    doc.put(util.letterToUpper(p.getName()), method.invoke(t2));
+                return    find(doc);
+                } catch (Exception e) {
+                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    exception = new Exception("findById() ", e);
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
+            exception = new Exception("findById() ", e);
+        }
+        return null;
     }
 
     @Override
