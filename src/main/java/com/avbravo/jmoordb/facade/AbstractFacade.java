@@ -291,7 +291,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             } 
 
                 getDB().getCollection(collection).insertOne(toDocument(t));
-                 System.out.println("---f--->");
+     
                 return true;
           
         } catch (Exception ex) {
@@ -345,7 +345,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     * @param t2
     * @return 
     */
-    private T findById(T t2) {
+   public T findById(T t2) {
         Document doc = new Document();
         try {
             Object t = entityClass.newInstance();
@@ -356,7 +356,8 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                   
                     method = entityClass.getDeclaredMethod(name);
 
-                    doc.put(util.letterToUpper(p.getName()), method.invoke(t2));
+                    doc.put(p.getName(), method.invoke(t2));
+                    
                 return    find(doc);
                 } catch (Exception e) {
                     Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
