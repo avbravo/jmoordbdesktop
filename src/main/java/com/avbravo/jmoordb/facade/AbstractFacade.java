@@ -265,10 +265,10 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     }
 
     /**
-     * 
+     *
      * @param t
      * @param verifyID
-     * @return 
+     * @return
      */
     public Boolean save(T t, Boolean... verifyID) {
         try {
@@ -281,23 +281,23 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 //Buscar llave primaria
 
                 T t_ = (T) find(findDocPrimaryKey(t));
-      
+
                 if (t_ == null) {
-                 // no lo encontro
+                    // no lo encontro
                 } else {
                     exception = new Exception("A document with the primary key already exists.");
                     return false;
                 }
-            } 
+            }
 
-                getDB().getCollection(collection).insertOne(toDocument(t));
-     
-                return true;
-          
+            getDB().getCollection(collection).insertOne(toDocument(t));
+
+            return true;
+
         } catch (Exception ex) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
             new JmoordbException("save() " + ex.getLocalizedMessage());
-            exception = new Exception("save() "+ex.getLocalizedMessage());
+            exception = new Exception("save() " + ex.getLocalizedMessage());
         }
         return false;
     }
@@ -315,7 +315,6 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      *
      * @return Document() correspondiente a la llave primaria
      */
-
     private Document findDocPrimaryKey(T t2) {
         Document doc = new Document();
         try {
@@ -324,11 +323,11 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 String name = "get" + util.letterToUpper(p.getName());
                 Method method;
                 try {
-                 
+
                     method = entityClass.getDeclaredMethod(name);
 
                     doc.put(p.getName(), method.invoke(t2));
-           
+
                 } catch (Exception e) {
                     Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
                     exception = new Exception("getDocumentPrimaryKey() ", e);
@@ -340,8 +339,8 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         }
         return doc;
     }
-    
-     /**
+
+    /**
      * Crea un Index en base a la llave primaria
      *
      * @return
@@ -358,7 +357,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         }
         return doc;
     }
-    
+
     /**
      *
      * @param doc
@@ -381,12 +380,14 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         }
         return false;
     }
-   /**
-    * Busca por la llave primaria del documento
-    * @param t2
-    * @return 
-    */
-   public T findById(T t2) {
+
+    /**
+     * Busca por la llave primaria del documento
+     *
+     * @param t2
+     * @return
+     */
+    public T findById(T t2) {
         Document doc = new Document();
         try {
             Object t = entityClass.newInstance();
@@ -394,12 +395,12 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 String name = "get" + util.letterToUpper(p.getName());
                 Method method;
                 try {
-                  
+
                     method = entityClass.getDeclaredMethod(name);
 
                     doc.put(p.getName(), method.invoke(t2));
-                    
-                return    find(doc);
+
+                    return find(doc);
                 } catch (Exception e) {
                     Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
                     exception = new Exception("findById() ", e);
@@ -496,6 +497,48 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         }
 
         return (T) t1;
+    }
+
+
+
+
+   /**
+    * 
+    * @param doc
+    * @return  el numero de documentos en la coleccion
+    */
+    public Integer count(Document... doc) {
+        try {
+            contador = 0;
+            Document documento = new Document();
+            if (doc.length != 0) {
+                documento = doc[0];
+                MongoDatabase db = getMongoClient().getDatabase(database);
+                FindIterable<Document> iterable = db.getCollection(collection).find(documento);
+
+                iterable.forEach(new Block<Document>() {
+                    @Override
+                    public void apply(final Document document) {
+                        try {
+                            contador++;
+                        } catch (Exception e) {
+                            Logger.getLogger(AbstractFacade.class.getName() + "count()").log(Level.SEVERE, null, e);
+                            exception = new Exception("count()", e);
+                        }
+                    }
+                });
+
+            } else {
+                // no tiene parametros
+                contador = (int)getMongoClient().getDatabase(database).getCollection(collection).count();
+
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "count()").log(Level.SEVERE, null, e);
+            exception = new Exception("count()", e);
+        }
+        return contador;
     }
 
 }
