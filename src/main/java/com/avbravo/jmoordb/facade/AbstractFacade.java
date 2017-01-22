@@ -500,6 +500,33 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     }
 
 
+    private List< T > iterableList(FindIterable<Document> iterable) {
+       List< T >   l = new ArrayList<>();
+        try {
+            iterable.forEach(new Block<Document>() {
+                @Override
+                public void apply(final Document document) {
+                    try {
+                        t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
+                        l.add(t1);
+                    } catch (Exception e) {
+                        Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
+                        exception = new Exception("find() ", e);
+                    }
+
+                }
+            });
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("iterableSimple() ", e);
+
+        }
+
+        return l;
+    }
+
+
 
 
    /**
@@ -539,6 +566,35 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             exception = new Exception("count()", e);
         }
         return contador;
+    }
+    
+    
+     /**
+     *
+     * @param document
+     * @return
+     */
+    
+    public List< T > findAll(Document... docSort) {
+       list = new ArrayList<>();
+             Document sortQuery = new Document();
+        try {
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            Object t = entityClass.newInstance();
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = db.getCollection(collection).find().sort(sortQuery);
+            list = iterableList(iterable);
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("find() ", e);
+            new JmoordbException("find()");
+        }
+
+        return   list;
     }
 
 }
