@@ -20,9 +20,13 @@ import com.avbravo.jmoordb.internal.DocumentToJava;
 import com.avbravo.jmoordb.internal.JavaToDocument;
 import com.avbravo.jmoordb.util.Util;
 import com.mongodb.Block;
+import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -597,4 +601,234 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         return   list;
     }
 
+    
+    /**
+     *
+     * @param key
+     * @param value
+     * @param field
+     * @return
+     */
+    public T findOneAndUpdate(String key, String value, String field, Integer... incremento) {
+
+        try {
+            Integer increment = 1;
+            if (incremento.length != 0) {
+                increment = incremento[0];
+
+            }
+            Document doc = new Document(key, value);
+            Document inc = new Document("$inc", new Document(field, increment));
+
+            FindOneAndUpdateOptions findOneAndUpdateOptions = new FindOneAndUpdateOptions();
+            findOneAndUpdateOptions.upsert(true);
+
+            findOneAndUpdateOptions.returnDocument(ReturnDocument.AFTER);
+
+            Object t = entityClass.newInstance();
+          
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            Document iterable = db.getCollection(collection).findOneAndUpdate(doc, inc, findOneAndUpdateOptions);
+
+            try {
+                
+                   t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedBeansList, referencedBeansList);
+//                Method method = entityClass.getDeclaredMethod("toPojo", Document.class);
+//                list.add((T) method.invoke(t, iterable));
+            } catch (Exception e) {
+                Logger.getLogger(AbstractFacade.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
+                exception = new Exception("findOneAndUpdate()", e);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findOneAndUpdate()", e);
+        }
+        
+        return t1;
+    }
+
+    /**
+     * findOneAndUpdate
+     *
+     * @param doc
+     * @param field
+     * @param incremento
+     * @return
+     */
+    public T findOneAndUpdate(Document doc, String field, Integer... incremento) {
+        try {
+            Integer increment = 1;
+            if (incremento.length != 0) {
+                increment = incremento[0];
+
+            }
+
+            Document inc = new Document("$inc", new Document(field, increment));
+
+            FindOneAndUpdateOptions findOneAndUpdateOptions = new FindOneAndUpdateOptions();
+            findOneAndUpdateOptions.upsert(true);
+
+            findOneAndUpdateOptions.returnDocument(ReturnDocument.AFTER);
+
+            Object t = entityClass.newInstance();
+            list = new ArrayList<>();
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            Document iterable = db.getCollection(collection).findOneAndUpdate(doc, inc, findOneAndUpdateOptions);
+
+            try {
+                  t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedBeansList, referencedBeansList);
+//                Method method = entityClass.getDeclaredMethod("toPojo", Document.class);
+//                list.add((T) method.invoke(t, iterable));
+            } catch (Exception e) {
+                Logger.getLogger(AbstractFacade.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
+                exception = new Exception("findOneAndUpdate()", e);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findOneAndUpdate()", e);
+        }
+//        if (list == null || list.isEmpty()) {
+//            try {
+//                return entityClass.newInstance();
+//            } catch (InstantiationException ex) {
+//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (IllegalAccessException ex) {
+//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//        return list.get(0);
+        return t1;
+    }
+
+    /**
+     *
+     * @param doc
+     * @param inc
+     * @param incremento
+     * @return
+     */
+    public T findOneAndUpdate(Document doc, Document inc, Integer... incremento) {
+        try {
+
+            FindOneAndUpdateOptions findOneAndUpdateOptions = new FindOneAndUpdateOptions();
+            findOneAndUpdateOptions.upsert(true);
+
+            findOneAndUpdateOptions.returnDocument(ReturnDocument.AFTER);
+
+            Object t = entityClass.newInstance();
+            list = new ArrayList<>();
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            Document iterable = db.getCollection(collection).findOneAndUpdate(doc, inc, findOneAndUpdateOptions);
+
+            try {
+                  t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedBeansList, referencedBeansList);
+//                Method method = entityClass.getDeclaredMethod("toPojo", Document.class);
+//                list.add((T) method.invoke(t, iterable));
+            } catch (Exception e) {
+                Logger.getLogger(AbstractFacade.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
+                exception = new Exception("findOneAndUpdate()", e);
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findOneAndUpdate()", e);
+        }
+//        if (list == null || list.isEmpty()) {
+//            try {
+//                return entityClass.newInstance();
+//            } catch (InstantiationException ex) {
+//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (IllegalAccessException ex) {
+//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//        return list.get(0);
+return t1;
+    }
+    
+    /**
+     * devuelva la lista de colecciones
+     * @return 
+     */
+    public List<String> listCollecctions(){
+        List<String> list = new ArrayList<>();
+        try {
+            for(Document name :getDB().listCollections()){
+          list.add(name.get("name").toString());
+                        
+                                
+            }
+          //MongoCollection myCollection = getDB().listCollections();
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            exception = new Exception("listCollecctions() ", e);
+        }
+        return list;
+    }
+    /**
+     * elimina la coleccion actual
+     * @return 
+     */
+     public Boolean drop() {
+
+        try {
+           // getDB().getCollection(collection).drop();
+              MongoCollection myCollection = getDB().getCollection("myCollection");
+              
+              
+//              if(myCollection.c == null){
+//                  System.out.println("es null");
+//              }else{
+//                  System.out.println("no es null");
+//              }
+//              System.out.println("myColecction "+myCollection);
+//myCollection.drop();
+            return true;
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            exception = new Exception("drop() ", e);
+        }
+        return false;
+    }
+     /**
+      * elimina la coleccion que se indiquem como parametro
+      * @param collection
+      * @return 
+      */
+     public Boolean drop(String collection) {
+
+        try {
+            getDB().getCollection(collection).drop();
+            
+            return true;
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            exception = new Exception("drop() ", e);
+        }
+        return false;
+    }
+
+     /**
+      * 
+      */
+      public Boolean dropDatabase() {
+
+        try {
+            getDB().drop();
+                
+            return true;
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            exception = new Exception("drop() ", e);
+        }
+        return false;
+    }
 }
