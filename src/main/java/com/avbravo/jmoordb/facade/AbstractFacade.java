@@ -16,6 +16,7 @@ import com.avbravo.jmoordb.anotations.Embedded;
 import com.avbravo.jmoordb.anotations.Id;
 import com.avbravo.jmoordb.anotations.Referenced;
 import com.avbravo.jmoordb.interfaces.AbstractInterface;
+import com.avbravo.jmoordb.interfaces.DatabaseInterface;
 import com.avbravo.jmoordb.internal.DocumentToJava;
 import com.avbravo.jmoordb.internal.JavaToDocument;
 import com.avbravo.jmoordb.util.Util;
@@ -41,7 +42,7 @@ import org.bson.Document;
  * @author avbravo
  * @param <T>
  */
-public abstract class AbstractFacade<T> implements AbstractInterface {
+public abstract class AbstractFacade<T>  implements AbstractInterface  {
 
     private JavaToDocument javaToDocument = new JavaToDocument();
     private DocumentToJava documentToJava = new DocumentToJava();
@@ -60,6 +61,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     Exception exception;
     Util util = new Util();
 
+   // DatabaseImplement databaseImplement = new DatabaseImplement();
     public Exception getException() {
         return exception;
     }
@@ -73,6 +75,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     Integer contador = 0;
 
     public AbstractFacade(Class<T> entityClass, String database, String collection, Boolean... lazy) {
+//        databaseImplement = new DatabaseImplement
         this.entityClass = entityClass;
         this.database = database;
         this.collection = collection;
@@ -634,8 +637,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             try {
                 
                    t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedBeansList, referencedBeansList);
-//                Method method = entityClass.getDeclaredMethod("toPojo", Document.class);
-//                list.add((T) method.invoke(t, iterable));
+
             } catch (Exception e) {
                 Logger.getLogger(AbstractFacade.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
                 exception = new Exception("findOneAndUpdate()", e);
@@ -691,16 +693,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findOneAndUpdate()", e);
         }
-//        if (list == null || list.isEmpty()) {
-//            try {
-//                return entityClass.newInstance();
-//            } catch (InstantiationException ex) {
-//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (IllegalAccessException ex) {
-//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-//        return list.get(0);
+
         return t1;
     }
 
@@ -738,16 +731,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findOneAndUpdate()", e);
         }
-//        if (list == null || list.isEmpty()) {
-//            try {
-//                return entityClass.newInstance();
-//            } catch (InstantiationException ex) {
-//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (IllegalAccessException ex) {
-//                Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-//        return list.get(0);
+
 return t1;
     }
     
@@ -760,10 +744,7 @@ return t1;
         try {
             for(Document name :getDB().listCollections()){
           list.add(name.get("name").toString());
-                        
-                                
             }
-          //MongoCollection myCollection = getDB().listCollections();
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
             exception = new Exception("listCollecctions() ", e);
@@ -771,24 +752,59 @@ return t1;
         return list;
     }
     /**
+     * verifica si existe una coleccion
+     * @param collection
+     * @return 
+     */
+    public Boolean existsCollection(String nameCollection){
+        try {
+            Boolean found = false;
+            for(String s:listCollecctions()){
+                if(s.equals(nameCollection)){
+                    return true;
+                }
+            }
+            
+        } catch (Exception e) {
+             Logger.getLogger(AbstractFacade.class.getName() + "existsCollection()").log(Level.SEVERE, null, e);
+            exception = new Exception("existsCollection() ", e);
+        }
+        return false;
+    }
+    /**
+     * createCollection
+     * @param nameCollection
+     * @return 
+     */
+    public Boolean createCollection(String nameCollection){
+        try {
+            getDB().createCollection(nameCollection);
+            return true;
+        } catch (Exception e) {
+             Logger.getLogger(AbstractFacade.class.getName() + "existsCollection()").log(Level.SEVERE, null, e);
+            exception = new Exception("existsCollection() ", e);
+        }
+        return false;
+    }
+    
+    
+    
+    
+    
+    /**
      * elimina la coleccion actual
      * @return 
      */
      public Boolean drop() {
 
         try {
-           // getDB().getCollection(collection).drop();
-              MongoCollection myCollection = getDB().getCollection("myCollection");
+            if(existsCollection(collection)){
+                 getDB().getCollection(collection).drop();
+                 return true;
+            }
+           
               
-              
-//              if(myCollection.c == null){
-//                  System.out.println("es null");
-//              }else{
-//                  System.out.println("no es null");
-//              }
-//              System.out.println("myColecction "+myCollection);
-//myCollection.drop();
-            return true;
+            return false;
 
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
