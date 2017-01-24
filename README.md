@@ -1,5 +1,6 @@
 # jmoordb
-Java Mapper for MongoDB and OrientDB
+Object Documment Mapper for Java 
+Mapper for MongoDB and OrientDB
 
 Es un Framework para integrar MongoDB/OrientDB con las aplicaciones Java de una manera sencilla.
 
