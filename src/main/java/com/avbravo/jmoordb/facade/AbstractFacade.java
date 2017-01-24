@@ -32,10 +32,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 /**
  *
@@ -590,7 +593,7 @@ public abstract class AbstractFacade<T>  implements AbstractInterface  {
                 sortQuery = docSort[0];
 
             }
-            Object t = entityClass.newInstance();
+       
             MongoDatabase db = getMongoClient().getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find().sort(sortQuery);
             list = iterableList(iterable);
@@ -735,6 +738,191 @@ public abstract class AbstractFacade<T>  implements AbstractInterface  {
 return t1;
     }
     
+    /**
+     * 
+     * @param doc
+     * @param docSort
+     * @return 
+     */
+    
+     public List<T> findBy(Document doc, Document... docSort) {
+        Document sortQuery = new Document();
+        try {
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            list = new ArrayList<>();
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
+              list = iterableList(iterable);
+
+           
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findBy() ", e);
+        }
+        return list;
+    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     * @param docSort
+     * @return
+     */
+//    public List<T> findBy(String key, String value, Document... docSort) {
+//        Document sortQuery = new Document();
+//        try {
+//            if (docSort.length != 0) {
+//                sortQuery = docSort[0];
+//
+//            }
+//         
+//            list = new ArrayList<>();
+//            Document doc = new Document(key, value);
+//            MongoDatabase db = getMongoClient().getDatabase(database);
+//            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
+//            list = iterableList(iterable);
+//        } catch (Exception e) {
+//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+//            exception = new Exception("findBy() ", e);
+//        }
+//        return list;
+//    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     * @param docSort
+     * @return
+     */
+//    public List<T> findBy(String key, Date value, Document... docSort) {
+//        Document sortQuery = new Document();
+//        try {
+//            if (docSort.length != 0) {
+//                sortQuery = docSort[0];
+//
+//            }
+//          
+//            list = new ArrayList<>();
+//            Document doc = new Document(key, value);
+//            MongoDatabase db = getMongoClient().getDatabase(database);
+//            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
+//             list = iterableList(iterable);
+//        } catch (Exception e) {
+//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+//            exception = new Exception("findBy() ", e);
+//        }
+//        return list;
+//    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     * @param docSort
+     * @return
+     */
+//    public List<T> findBy(String key, Integer value, Document... docSort) {
+//        Document sortQuery = new Document();
+//        try {
+//            if (docSort.length != 0) {
+//                sortQuery = docSort[0];
+//
+//            }
+//     
+//            list = new ArrayList<>();
+//            Document doc = new Document(key, value);
+//            MongoDatabase db = getMongoClient().getDatabase(database);
+//            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
+//              list = iterableList(iterable);
+//        } catch (Exception e) {
+//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+//            exception = new Exception("findBy() ", e);
+//        }
+//        return list;
+//    }
+
+    public List<T> findBy(String key, Object value, Document... docSort) {
+        Document sortQuery = new Document();
+        try {
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+                        list = new ArrayList<>();
+            Document doc = new Document(key, value);
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
+             list = iterableList(iterable);
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findBy() ", e);
+        }
+        return list;
+    }
+
+    /**
+     *
+     * @param filter
+     * @param docSort
+     * @return
+     */
+    public List<T> findBy(Bson filter, Document... docSort) {
+        Document sortQuery = new Document();
+        try {
+
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            list = new ArrayList<>();
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+
+            FindIterable<Document> iterable = db.getCollection(collection).find(filter).sort(sortQuery);
+             list = iterableList(iterable);
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findBy() ", e);
+        }
+        return list;
+    }
+    
+    /**
+     * 
+     * @param key
+     * @param value
+     * @param docSort
+     * @return 
+     */
+     public List<T> findlike(String key, String value, Document... docSort) {
+        Document sortQuery = new Document();
+        list = new ArrayList<>();
+
+        try {
+
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            Object t = entityClass.newInstance();
+            Pattern regex = Pattern.compile(value);
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, regex)).sort(sortQuery);
+        list = iterableList(iterable);
+              
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findLike()", e);
+        }
+        return list;
+    }
     /**
      * devuelva la lista de colecciones
      * @return 
