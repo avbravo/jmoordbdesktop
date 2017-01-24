@@ -21,19 +21,31 @@ import com.avbravo.jmoordb.internal.DocumentToJava;
 import com.avbravo.jmoordb.internal.JavaToDocument;
 import com.avbravo.jmoordb.util.Util;
 import com.mongodb.Block;
+import com.mongodb.CursorType;
 import com.mongodb.DBCollection;
+import com.mongodb.Function;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
+import com.mongodb.client.model.Collation;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gt;
+import static com.mongodb.client.model.Filters.lt;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
+import static com.mongodb.client.model.Indexes.ascending;
+import static com.mongodb.client.model.Indexes.descending;
 import com.mongodb.client.model.ReturnDocument;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -872,7 +884,7 @@ return t1;
      * @param docSort
      * @return
      */
-    public List<T> findBy(Bson filter, Document... docSort) {
+    public List<T> filters(Bson filter, Document... docSort) {
         Document sortQuery = new Document();
         try {
 
@@ -1034,5 +1046,175 @@ return t1;
             exception = new Exception("drop() ", e);
         }
         return false;
+    }
+      
+      
+        public List<T> findHelperSort(String predicate, Document doc, String key, String value) {
+        try {
+
+            Object t = entityClass.newInstance();
+            list = new ArrayList<>();
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = getIterable();
+            switch (predicate) {
+                case "ascending":
+                    iterable = db.getCollection(collection).find(doc).sort(ascending(key, value));
+                    break;
+                case "descending":
+                    iterable = db.getCollection(collection).find(doc).sort(descending(key, value));
+                    break;
+
+            }
+
+              list = iterableList(iterable);
+              
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findHelperSort()", e);
+        }
+        return list;
+    }
+
+    /**
+     *
+     * @param predicate eq,gt.lt
+     * @param key
+     * @param value
+     * @param docSort
+     * @return
+     */
+    public List<T> helpers(String predicate, String key,Object value, Document... docSort) {
+        Document sortQuery = new Document();
+        try {
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            Object t = entityClass.newInstance();
+            list = new ArrayList<>();
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = getIterable();
+            switch (predicate) {
+                case "eq":
+                    iterable = db.getCollection(collection).find(eq(key, value)).sort(sortQuery);
+                    break;
+                case "lt":
+                    iterable = db.getCollection(collection).find(lt(key, value)).sort(sortQuery);
+                    break;
+                case "gt":
+                    iterable = db.getCollection(collection).find(gt(key, value)).sort(sortQuery);
+                    break;
+            }
+
+              list = iterableList(iterable);
+              
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("helpers()", e);
+        }
+        return list;
+    }
+    
+    
+     private FindIterable<Document> getIterable() {
+        FindIterable<Document> iterable = new FindIterable<Document>() {
+            @Override
+            public FindIterable<Document> filter(Bson bson) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> limit(int i) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> skip(int i) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> maxTime(long l, TimeUnit tu) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> maxAwaitTime(long l, TimeUnit tu) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> modifiers(Bson bson) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> projection(Bson bson) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> sort(Bson bson) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> noCursorTimeout(boolean bln) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> oplogReplay(boolean bln) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> partial(boolean bln) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> cursorType(CursorType ct) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> batchSize(int i) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public MongoCursor<Document> iterator() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public Document first() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public <U> MongoIterable<U> map(Function<Document, U> fnctn) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void forEach(Block<? super Document> block) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public <A extends Collection<? super Document>> A into(A a) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public FindIterable<Document> collation(Collation cltn) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+        return iterable;
     }
 }
