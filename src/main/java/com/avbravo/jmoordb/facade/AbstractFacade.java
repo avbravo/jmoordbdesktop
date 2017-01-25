@@ -31,6 +31,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Collation;
+import com.mongodb.client.model.Filters;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.gt;
 import static com.mongodb.client.model.Filters.lt;
@@ -39,6 +40,7 @@ import static com.mongodb.client.model.Indexes.ascending;
 import static com.mongodb.client.model.Indexes.descending;
 import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -1308,5 +1310,146 @@ return t1;
         }
         return cont;
     }
+    
+    
+     public Boolean update(T t) {
+    
+        
+           Integer n= update(t, new Document("$set",  toDocument(t)));
+           if(n >= 1){
+               return true;
+           }else{
+               return false;
+           }
+    }
+
+    private Integer update(T t2, Document doc) {
+        Integer documentosModificados = 0;
+        Document search = new Document();
+
+        try {
+         search =  findDocPrimaryKey(t2);
+//            find(search);
+//            
+            //documentToJava.fromDocument(entityClass, toDocument(t2), embeddedBeansList, referencedBeansList);
+            
+          
+            UpdateResult updateResult = getDB().getCollection(collection).updateOne(search, doc);
+            return (int) updateResult.getModifiedCount();
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
+            exception = new Exception("updateOne() ", e);
+        }
+        return 0;
+    }
+
+    public Integer update(Document docSearch, Document docUpdate) {
+        Integer documentosModificados = 0;
+
+        try {
+
+            UpdateResult updateResult = getDB().getCollection(collection).updateOne(docSearch, docUpdate);
+            return (int) updateResult.getModifiedCount();
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
+            exception = new Exception("updateOne() ", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Actualiza multiples documentos
+     *
+     * @param docSearch
+     * @param docUpdate
+     * @return
+     */
+    public Integer updateMany(Document docSearch, Document docUpdate) {
+        Integer documentosModificados = 0;
+
+        try {
+
+            UpdateResult updateResult = getDB().getCollection(collection).updateMany(docSearch, docUpdate);
+            return (int) updateResult.getModifiedCount();
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "updateMany()").log(Level.SEVERE, null, e);
+            exception = new Exception("updateMany() ", e);
+        }
+        return 0;
+    }
+
+    /**
+     * implementa replaceOne
+     *
+     * @param key
+     * @param value
+     * @param docUpdate
+     * @return
+     */
+    public Integer replaceOne(String key, String value, Document docUpdate) {
+        Integer documentosModificados = 0;
+
+        try {
+            UpdateResult updateResult = getDB().getCollection(collection).replaceOne(Filters.eq(key, value), docUpdate);
+
+            return (int) updateResult.getModifiedCount();
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "replaceOne()").log(Level.SEVERE, null, e);
+            exception = new Exception("replaceOne() ", e);
+        }
+        return 0;
+    }
+
+    /**
+     *
+     * @param key
+     * @param value
+     * @param docUpdate
+     * @return
+     */
+    public Integer replaceOne(Bson search, Document docUpdate) {
+        Integer documentosModificados = 0;
+
+        try {
+            UpdateResult updateResult = getDB().getCollection(collection).replaceOne(search, docUpdate);
+
+            return (int) updateResult.getModifiedCount();
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "replaceOne()").log(Level.SEVERE, null, e);
+            exception = new Exception("replaceOne() ", e);
+        }
+        return 0;
+    }
+
+    /**
+     *
+     * @param docSearch
+     * @param docUpdate
+     * @param options
+     * @return
+     */
+    public Integer replaceOne(Document docSearch, Document docUpdate, String... options) {
+        Integer documentosModificados = 0;
+
+        try {
+            for (String arg : options) {
+                System.out.println(arg);
+            }
+
+            UpdateResult updateResult = getDB().getCollection(collection).replaceOne(docSearch, docUpdate);
+            return (int) updateResult.getModifiedCount();
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
+            exception = new Exception("updateOne() ", e);
+        }
+        return 0;
+    }
+
 
 }
