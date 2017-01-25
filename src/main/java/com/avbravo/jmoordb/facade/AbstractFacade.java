@@ -38,6 +38,7 @@ import com.mongodb.client.model.FindOneAndUpdateOptions;
 import static com.mongodb.client.model.Indexes.ascending;
 import static com.mongodb.client.model.Indexes.descending;
 import com.mongodb.client.model.ReturnDocument;
+import com.mongodb.client.result.DeleteResult;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -1217,4 +1218,95 @@ return t1;
         };
         return iterable;
     }
+     /**
+      * elimina un documento
+      * @param doc
+      * @return 
+      */
+     public Boolean delete(String key, Object value){
+         try {
+                Document doc = new Document(key, value);
+            DeleteResult  dr=    getDB().getCollection(collection).deleteOne(doc);
+            if(dr.getDeletedCount()>=0){
+                return true;
+            }
+         } catch (Exception e) {
+             Logger.getLogger(AbstractFacade.class.getName() + "delete()").log(Level.SEVERE, null, e);
+            exception = new Exception("delete() ", e);
+         }
+         return false;
+     }
+     
+     /**
+      * elimina un documento
+      * @param doc
+      * @return 
+      */
+    public Boolean delete(Document doc) {
+        try {
+         DeleteResult dr =   getDB().getCollection(collection).deleteOne(doc);
+          if(dr.getDeletedCount()>=0){
+                return true;
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "remove()").log(Level.SEVERE, null, e);
+            exception = new Exception("remove() ", e);
+        }
+        return false;
+    } 
+     
+    
+/**
+ * 
+ * @param doc
+ * @return 
+ */
+    public Integer deleteMany(String key, Object value) {
+        Integer cont = 0;
+        try {
+            Document doc = new Document(key, value);
+            DeleteResult dr = getDB().getCollection(collection).deleteMany(doc);
+            cont = (int) dr.getDeletedCount();
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
+            exception = new Exception("deleteMany() ", e);
+        }
+        return cont;
+    }
+    /**
+     * 
+     * @param doc
+     * @return 
+     */
+    public Integer deleteMany(Document doc) {
+        Integer cont = 0;
+        try {
+            DeleteResult dr = getDB().getCollection(collection).deleteMany(doc);
+            cont = (int) dr.getDeletedCount();
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
+            exception = new Exception("deleteMany() ", e);
+        }
+        return cont;
+    }
+
+    /**
+     * Remove all documment of a collection
+     *
+     * @return count of document delete
+     */
+    public Integer deleteAll() {
+        Integer cont = 0;
+        try {
+            DeleteResult dr = getDB().getCollection(collection).deleteMany(new Document());
+
+            cont = (int) dr.getDeletedCount();
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "removeDocument()").log(Level.SEVERE, null, e);
+            exception = new Exception("removeAll() ", e);
+        }
+        return cont;
+    }
+
 }
