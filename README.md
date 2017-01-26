@@ -49,4 +49,4 @@ Las operaciones CRUD se implementan atraves de un Facade.
    
    
    
-# jmoordb Documentacion y Libro <https://www.gitbook.com/book/avbravo/jmoordb/details>
+# jmoordb Documentación y Libro <https://www.gitbook.com/book/avbravo/jmoordb/details>
