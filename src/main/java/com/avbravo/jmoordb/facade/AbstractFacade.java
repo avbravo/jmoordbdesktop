@@ -326,6 +326,48 @@ public abstract class AbstractFacade<T>  implements AbstractInterface  {
         }
         return false;
     }
+    /**
+     * 
+     * @param doc
+     * @param verifyID
+     * @return 
+     */
+    public Boolean save(Document doc, Boolean... verifyID) {
+        try {
+            Boolean verificate = true;
+            if (verifyID.length != 0) {
+                verificate = verifyID[0];
+
+            }
+            if (verificate) {
+                //Buscar llave primaria
+
+           t1 = (T) documentToJava.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+               T t_ = (T) find(findDocPrimaryKey(t1));
+
+                if (t_ == null) {
+                    // no lo encontro
+                } else {
+                    exception = new Exception("A document with the primary key already exists.");
+                    return false;
+                }
+            }
+
+            getDB().getCollection(collection).insertOne(doc);
+
+            return true;
+
+        } catch (Exception ex) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            new JmoordbException("save() " + ex.getLocalizedMessage());
+            exception = new Exception("save() " + ex.getLocalizedMessage());
+        }
+        return false;
+    }
+    
+    
+    
+    
 
     /**
      *
@@ -431,6 +473,26 @@ public abstract class AbstractFacade<T>  implements AbstractInterface  {
                     exception = new Exception("findById() ", e);
                 }
             }
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
+            exception = new Exception("findById() ", e);
+        }
+        return null;
+    }
+    public T findById(Document doc) {
+    
+        try {
+             //  t1 = (T) documentToJava.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+               T t_ = (T) find(doc);
+               
+
+                if (t_ == null) {
+                    // no lo encontro
+                } else {
+                 return t_;
+                }
+                    
+                
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
             exception = new Exception("findById() ", e);
@@ -1437,9 +1499,9 @@ return t1;
         Integer documentosModificados = 0;
 
         try {
-            for (String arg : options) {
-                System.out.println(arg);
-            }
+//            for (String arg : options) {
+//                System.out.println(arg);
+//            }
 
             UpdateResult updateResult = getDB().getCollection(collection).replaceOne(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
