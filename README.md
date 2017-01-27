@@ -13,15 +13,15 @@ Sintaxis similiar a JPA
   
   
  ##Dependencias
-<dependencies>
+    <dependencies>
         <dependency>
 	    <groupId>com.github.avbravo</groupId>
 	    <artifactId>jmoordb</artifactId>
 	    <version>0.1.7</version>
 	</dependency>
-    </dependencies>
+     </dependencies>
 
- <repositories>
+     <repositories>
 		<repository>
 		    <id>jitpack.io</id>
 		    <url>https://jitpack.io</url>
