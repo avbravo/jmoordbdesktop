@@ -10,8 +10,26 @@ Sintaxis similiar a JPA
  Documentos embebidos mediante la anotación @Embedded
 
   Documentos relacionados mediante la anotación @Referenced
+  
+  
+ ##Dependencias
+<dependencies>
+        <dependency>
+	    <groupId>com.github.avbravo</groupId>
+	    <artifactId>jmoordb</artifactId>
+	    <version>0.1.7</version>
+	</dependency>
+    </dependencies>
 
-#Entity
+ <repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+
+###Entity
 @Getter
 
 @Setter
