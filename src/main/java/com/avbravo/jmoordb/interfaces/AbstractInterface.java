@@ -20,7 +20,7 @@ public interface AbstractInterface <T>{
       public T findById(String key, Integer value);
       
      public T find(String key, Object value);
-     public T find(String key, Integer value);
+//     public T find(String key, Integer value);
      public T find(Document document);
      
    //  public Boolean save(T t,Boolean... verifyID);
