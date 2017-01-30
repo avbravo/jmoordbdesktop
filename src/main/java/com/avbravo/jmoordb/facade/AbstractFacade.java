@@ -506,15 +506,16 @@ public abstract class AbstractFacade<T>  implements AbstractInterface  {
             Object t = entityClass.newInstance();
             MongoDatabase db = getMongoClient().getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
+       
             t1 = iterableSimple(iterable);
-
+return (T)t1;
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
             new JmoordbException("find()");
         }
 
-        return (T) t1;
+        return null;
     }
 
     /**
@@ -529,14 +530,14 @@ public abstract class AbstractFacade<T>  implements AbstractInterface  {
             MongoDatabase db = getMongoClient().getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(document);
             t1 = iterableSimple(iterable);
-
+   return (T) t1;
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
             new JmoordbException("find()");
         }
 
-        return (T) t1;
+        return null;
     }
 
     @Override
@@ -546,14 +547,14 @@ public abstract class AbstractFacade<T>  implements AbstractInterface  {
             MongoDatabase db = getMongoClient().getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
             t1 = iterableSimple(iterable);
-
+return (T) t1;
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
             new JmoordbException("find()");
         }
 
-        return (T) t1;
+        return null;
     }
 
     /**
