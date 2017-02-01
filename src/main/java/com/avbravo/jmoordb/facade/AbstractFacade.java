@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,7 +65,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
     private JavaToDocument javaToDocument = new JavaToDocument();
     private DocumentToJava documentToJava = new DocumentToJava();
-    T t1,tlocal;
+    T t1, tlocal;
     private Class<T> entityClass;
     private String database;
     private String collection;
@@ -452,7 +453,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      * @param t2
      * @return
      */
-    public T findById(T t2) {
+    public Optional<T> findById(T t2) {
         Document doc = new Document();
         try {
             Object t = entityClass.newInstance();
@@ -475,10 +476,10 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
             exception = new Exception("findById() ", e);
         }
-        return null;
+        return Optional.empty();
     }
 
-    public T findById(Document doc) {
+    public Optional<T> findById(Document doc) {
 
         try {
             //  t1 = (T) documentToJava.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
@@ -487,25 +488,25 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             if (t_ == null) {
                 // no lo encontro
             } else {
-                return t_;
+                return Optional.of(t_);
             }
 
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
             exception = new Exception("findById() ", e);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public T find(String key, Object value) {
+    public Optional<T> find(String key, Object value) {
         try {
-         
+
             //   Object t = entityClass.newInstance();
             MongoDatabase db = getMongoClient().getDatabase(database);
-         
+
             FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
-         
+
             haveElements = false;
             iterable.forEach(new Block<Document>() {
                 @Override
@@ -521,21 +522,21 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 }
             });
             if (haveElements) {
-                
-                return tlocal;
+
+//                return tlocal;
+                return Optional.of(tlocal);
             }
-            return null;
-//            t1 = iterableSimple(iterable);
-//            return (T) t1;
-//      
-//            return (T)  iterableSimple(iterable);
+//            return null;
+            return Optional.empty();
+
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
-          //  new JmoordbException("find()");
+
         }
 
-        return null;
+//        return null;
+        return Optional.empty();
     }
 
     /**
@@ -544,58 +545,23 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      * @return
      */
     @Override
-    public T find(Document document) {
-        try {        
+    public Optional<T> find(Document document) {
+        try {
             //   Object t = entityClass.newInstance();
             MongoDatabase db = getMongoClient().getDatabase(database);
             FindIterable<Document> iterable = db.getCollection(collection).find(document);
-            tlocal = iterableSimple(iterable);
-            return (T) tlocal;
+            tlocal = (T) iterableSimple(iterable);
+            return Optional.of(tlocal);
+            //return (T) tlocal;
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
             new JmoordbException("find()");
         }
-
-        return null;
+        return Optional.empty();
+//        return null;
     }
 
-//    @Override
-//    public T find(String key, Integer value) {
-//        try {
-//            haveElements = false;
-//            System.out.println("--->Otro find()");
-//            //  Object t = entityClass.newInstance();
-//            MongoDatabase db = getMongoClient().getDatabase(database);
-//            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
-////            t1 = iterableSimple(iterable);
-////            return (T) t1;
-//            haveElements = false;
-//            iterable.forEach(new Block<Document>() {
-//                @Override
-//                public void apply(final Document document) {
-//                    try {
-//                        haveElements = true;
-//                        tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
-//                    } catch (Exception e) {
-//                        Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
-//                        exception = new Exception("find() ", e);
-//                    }
-//
-//                }
-//            });
-//            if (haveElements) {
-//                return tlocal;
-//            }
-//            return null;
-//        } catch (Exception e) {
-//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-//            exception = new Exception("find() ", e);
-//           // new JmoordbException("find()");
-//        }
-//
-//        return null;
-//    }
 
     /**
      * Internamente recorre el iterable
@@ -605,7 +571,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      */
     private T iterableSimple(FindIterable<Document> iterable) {
         try {
-            System.out.println("$$$$$$$iterable simple");
+            //      System.out.println("$$$$$$$iterable simple");
             haveElements = false;
 //            if (iterable == null) {
 //                System.out.println("es null iterable");
@@ -888,84 +854,6 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         return list;
     }
 
-    /**
-     *
-     * @param key
-     * @param value
-     * @param docSort
-     * @return
-     */
-//    public List<T> findBy(String key, String value, Document... docSort) {
-//        Document sortQuery = new Document();
-//        try {
-//            if (docSort.length != 0) {
-//                sortQuery = docSort[0];
-//
-//            }
-//         
-//            list = new ArrayList<>();
-//            Document doc = new Document(key, value);
-//            MongoDatabase db = getMongoClient().getDatabase(database);
-//            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
-//            list = iterableList(iterable);
-//        } catch (Exception e) {
-//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-//            exception = new Exception("findBy() ", e);
-//        }
-//        return list;
-//    }
-    /**
-     *
-     * @param key
-     * @param value
-     * @param docSort
-     * @return
-     */
-//    public List<T> findBy(String key, Date value, Document... docSort) {
-//        Document sortQuery = new Document();
-//        try {
-//            if (docSort.length != 0) {
-//                sortQuery = docSort[0];
-//
-//            }
-//          
-//            list = new ArrayList<>();
-//            Document doc = new Document(key, value);
-//            MongoDatabase db = getMongoClient().getDatabase(database);
-//            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
-//             list = iterableList(iterable);
-//        } catch (Exception e) {
-//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-//            exception = new Exception("findBy() ", e);
-//        }
-//        return list;
-//    }
-    /**
-     *
-     * @param key
-     * @param value
-     * @param docSort
-     * @return
-     */
-//    public List<T> findBy(String key, Integer value, Document... docSort) {
-//        Document sortQuery = new Document();
-//        try {
-//            if (docSort.length != 0) {
-//                sortQuery = docSort[0];
-//
-//            }
-//     
-//            list = new ArrayList<>();
-//            Document doc = new Document(key, value);
-//            MongoDatabase db = getMongoClient().getDatabase(database);
-//            FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
-//              list = iterableList(iterable);
-//        } catch (Exception e) {
-//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-//            exception = new Exception("findBy() ", e);
-//        }
-//        return list;
-//    }
     public List<T> findBy(String key, Object value, Document... docSort) {
         Document sortQuery = new Document();
         try {
