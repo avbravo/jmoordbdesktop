@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.avbravo</groupId>
     <artifactId>jmoordb</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.8.0</version>
     <packaging>jar</packaging>
      <description>Java Mapper Object for MongoDB</description>
     <dependencies>
@@ -16,6 +16,11 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
             <version>3.4.0</version>
+        </dependency>
+         <dependency>
+            <groupId>com.couchbase.client</groupId>
+            <artifactId>java-client</artifactId>
+            <version>2.4.1</version>
         </dependency>
     </dependencies>
     <properties>
