@@ -11,6 +11,7 @@ Sintaxis similiar a JPA
 
   Documentos relacionados mediante la anotación @Referenced
   
+  ## jmoordb Documentación y Libro <https://www.gitbook.com/book/avbravo/jmoordb/details>
   
  ##Dependencias
  
@@ -18,7 +19,7 @@ Sintaxis similiar a JPA
           <dependency>
 	    <groupId>com.github.avbravo</groupId>
 	    <artifactId>jmoordb</artifactId>
-	    <version>0.1.8</version>
+	    <version>0.1.</version>
 	 </dependency>
      </dependencies>
 
