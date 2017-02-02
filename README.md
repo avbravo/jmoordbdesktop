@@ -13,7 +13,7 @@ Sintaxis similiar a JPA
   
   ## jmoordb Documentación y Libro <https://www.gitbook.com/book/avbravo/jmoordb/details>
   
- ##Dependencias
+ #Dependencias
  
       <dependencies>
           <dependency>
