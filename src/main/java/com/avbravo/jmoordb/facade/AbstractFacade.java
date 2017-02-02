@@ -16,17 +16,14 @@ import com.avbravo.jmoordb.anotations.Embedded;
 import com.avbravo.jmoordb.anotations.Id;
 import com.avbravo.jmoordb.anotations.Referenced;
 import com.avbravo.jmoordb.interfaces.AbstractInterface;
-import com.avbravo.jmoordb.interfaces.DatabaseInterface;
 import com.avbravo.jmoordb.internal.DocumentToJava;
 import com.avbravo.jmoordb.internal.JavaToDocument;
 import com.avbravo.jmoordb.util.Util;
 import com.mongodb.Block;
 import com.mongodb.CursorType;
-import com.mongodb.DBCollection;
 import com.mongodb.Function;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
@@ -46,7 +43,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +58,9 @@ import org.bson.conversions.Bson;
  * @param <T>
  */
 public abstract class AbstractFacade<T> implements AbstractInterface {
+ protected abstract MongoClient getMongoClient();
 
+    Integer contador = 0;
     private JavaToDocument javaToDocument = new JavaToDocument();
     private DocumentToJava documentToJava = new DocumentToJava();
     T t1, tlocal;
@@ -90,9 +88,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         this.exception = exception;
     }
 
-    protected abstract MongoClient getMongoClient();
-
-    Integer contador = 0;
+   
 
     public AbstractFacade(Class<T> entityClass, String database, String collection, Boolean... lazy) {
 //        databaseImplement = new DatabaseImplement
@@ -181,6 +177,11 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
     }
 
+     @Override
+    public MongoDatabase getDB() {
+        MongoDatabase db = getMongoClient().getDatabase(database);
+        return db;
+    }
     /**
      *
      * @param variable
@@ -285,11 +286,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         return false;
     }
 
-    @Override
-    public MongoDatabase getDB() {
-        MongoDatabase db = getMongoClient().getDatabase(database);
-        return db;
-    }
+   
 
     /**
      *
@@ -573,14 +570,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         try {
             //      System.out.println("$$$$$$$iterable simple");
             haveElements = false;
-//            if (iterable == null) {
-//                System.out.println("es null iterable");
-//            } else {
-//                System.out.println("no es null iterable");
-//            }
-//            if (iterable.first().isEmpty()) {
-//                return null;
-//            }
+
             iterable.forEach(new Block<Document>() {
                 @Override
                 public void apply(final Document document) {
@@ -1324,9 +1314,6 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
         try {
             search = findDocPrimaryKey(t2);
-//            find(search);
-//            
-            //documentToJava.fromDocument(entityClass, toDocument(t2), embeddedBeansList, referencedBeansList);
 
             UpdateResult updateResult = getDB().getCollection(collection).updateOne(search, doc);
             return (int) updateResult.getModifiedCount();
@@ -1431,9 +1418,6 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         Integer documentosModificados = 0;
 
         try {
-//            for (String arg : options) {
-//                System.out.println(arg);
-//            }
 
             UpdateResult updateResult = getDB().getCollection(collection).replaceOne(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
