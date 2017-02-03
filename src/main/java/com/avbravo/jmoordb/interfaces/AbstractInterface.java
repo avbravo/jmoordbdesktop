@@ -14,7 +14,7 @@ import org.bson.Document;
  * @author avbravo
  */
 public interface AbstractInterface <T>{
-     public MongoDatabase getDB() ;
+     public MongoDatabase getMongoDatabase() ;
 //     public Document findOne();
       public T findById(String key, String value);
       public T findById(String key, Integer value);

@@ -16,6 +16,7 @@ import com.avbravo.jmoordb.anotations.Embedded;
 import com.avbravo.jmoordb.anotations.Id;
 import com.avbravo.jmoordb.anotations.Referenced;
 import com.avbravo.jmoordb.interfaces.AbstractInterface;
+import com.avbravo.jmoordb.internal.Analizador;
 import com.avbravo.jmoordb.internal.DocumentToJava;
 import com.avbravo.jmoordb.internal.JavaToDocument;
 import com.avbravo.jmoordb.util.Util;
@@ -107,6 +108,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         referencedBeansList = new ArrayList<>();
         datePatternBeansList = new ArrayList<>();
         fieldBeansList = new ArrayList<>();
+      
         /**
          * lee las anotaciones @Id para obtener los PrimaryKey del documento
          */
@@ -115,57 +117,64 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
          */
 
         final Field[] fields = entityClass.getDeclaredFields();
-        for (final Field field : fields) {
-            Annotation anotacion = field.getAnnotation(Id.class);
-            Annotation anotacionEmbedded = field.getAnnotation(Embedded.class);
-            Annotation anotacionReferenced = field.getAnnotation(Referenced.class);
-            Annotation anotacionDateFormat = field.getAnnotation(DatePattern.class);
-
-            Embedded embedded = field.getAnnotation(Embedded.class);
-            Referenced referenced = field.getAnnotation(Referenced.class);
-            DatePattern datePattern = field.getAnnotation(DatePattern.class);
-
-            field.setAccessible(true);
-
-            FieldBeans fieldBeans = new FieldBeans();
-            fieldBeans.setIsKey(false);
-            fieldBeans.setIsEmbedded(false);
-            fieldBeans.setIsReferenced(false);
-            fieldBeans.setName(field.getName());
-            fieldBeans.setType(field.getType().getName());
-
-            //PrimaryKey
-            if (anotacion != null) {
-                verifyPrimaryKey(field, anotacion);
-                fieldBeans.setIsKey(true);
-
-            }
-            if (anotacionEmbedded != null) {
-
-                verifyEmbedded(field, anotacionEmbedded);
-                fieldBeans.setIsEmbedded(true);
-
-            }
-
-            if (anotacionReferenced != null) {
-
-                verifyReferenced(field, anotacionReferenced, referenced);
-                fieldBeans.setIsReferenced(true);
-
-            }
-            if (anotacionDateFormat != null) {
-
-                verifyDatePattern(field, anotacionReferenced, datePattern);
-                //fieldBeans.setIsReferenced(true);
-
-            }
-
-            fieldBeansList.add(fieldBeans);
+          Analizador analizador = new Analizador();
+        analizador.analizar(fields);
+        primaryKeyList = analizador.getPrimaryKeyList();
+        embeddedBeansList = analizador.getEmbeddedBeansList();
+        referencedBeansList = analizador.getReferencedBeansList();
+        datePatternBeansList = analizador.getDatePatternBeansList();
+        fieldBeansList = analizador.getFieldBeansList();
+//        for (final Field field : fields) {
+//            Annotation anotacion = field.getAnnotation(Id.class);
+//            Annotation anotacionEmbedded = field.getAnnotation(Embedded.class);
+//            Annotation anotacionReferenced = field.getAnnotation(Referenced.class);
+//            Annotation anotacionDateFormat = field.getAnnotation(DatePattern.class);
+//
+//            Embedded embedded = field.getAnnotation(Embedded.class);
+//            Referenced referenced = field.getAnnotation(Referenced.class);
+//            DatePattern datePattern = field.getAnnotation(DatePattern.class);
+//
+//            field.setAccessible(true);
+//
+//            FieldBeans fieldBeans = new FieldBeans();
+//            fieldBeans.setIsKey(false);
+//            fieldBeans.setIsEmbedded(false);
+//            fieldBeans.setIsReferenced(false);
+//            fieldBeans.setName(field.getName());
+//            fieldBeans.setType(field.getType().getName());
+//
+//            //PrimaryKey
+//            if (anotacion != null) {
+//                verifyPrimaryKey(field, anotacion);
+//                fieldBeans.setIsKey(true);
+//
+//            }
+//            if (anotacionEmbedded != null) {
+//
+//                verifyEmbedded(field, anotacionEmbedded);
+//                fieldBeans.setIsEmbedded(true);
+//
+//            }
+//
+//            if (anotacionReferenced != null) {
+//
+//                verifyReferenced(field, anotacionReferenced, referenced);
+//                fieldBeans.setIsReferenced(true);
+//
+//            }
+//            if (anotacionDateFormat != null) {
+//
+//                verifyDatePattern(field, anotacionReferenced, datePattern);
+//                //fieldBeans.setIsReferenced(true);
+//
+//            }
+//
+//            fieldBeansList.add(fieldBeans);
 
             /**
              * carga los documentos embebidos
              */
-        }
+//        }
         //Llave primary
         if (primaryKeyList.isEmpty()) {
             exception = new Exception("No have primaryKey() ");
@@ -177,8 +186,8 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
     }
 
-     @Override
-    public MongoDatabase getDB() {
+     @Override 
+    public MongoDatabase getMongoDatabase() {
         MongoDatabase db = getMongoClient().getDatabase(database);
         return db;
     }
@@ -188,31 +197,31 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      * @param anotacion
      * @return
      */
-    private Boolean verifyPrimaryKey(Field variable, Annotation anotacion) {
-        try {
-            final Id anotacionPK = (Id) anotacion;
-            PrimaryKey primaryKey = new PrimaryKey();
-
-            Boolean found = false;
-            for (PrimaryKey pk : primaryKeyList) {
-                if (pk.getName().equals(primaryKey.getName())) {
-                    found = true;
-                }
-            }
-
-            primaryKey.setName(variable.getName());
-            primaryKey.setType(variable.getType().getName());
-
-            // obtengo el valor del atributo
-            if (!found) {
-                primaryKeyList.add(primaryKey);
-            }
-            return true;
-        } catch (Exception e) {
-            System.out.println("verifyPrimaryKey() " + e.getLocalizedMessage());
-        }
-        return false;
-    }
+//    private Boolean verifyPrimaryKey(Field variable, Annotation anotacion) {
+//        try {
+//            final Id anotacionPK = (Id) anotacion;
+//            PrimaryKey primaryKey = new PrimaryKey();
+//
+//            Boolean found = false;
+//            for (PrimaryKey pk : primaryKeyList) {
+//                if (pk.getName().equals(primaryKey.getName())) {
+//                    found = true;
+//                }
+//            }
+//
+//            primaryKey.setName(variable.getName());
+//            primaryKey.setType(variable.getType().getName());
+//
+//            // obtengo el valor del atributo
+//            if (!found) {
+//                primaryKeyList.add(primaryKey);
+//            }
+//            return true;
+//        } catch (Exception e) {
+//            System.out.println("verifyPrimaryKey() " + e.getLocalizedMessage());
+//        }
+//        return false;
+//    }
 
     /**
      *
@@ -220,19 +229,19 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      * @param anotacion
      * @return
      */
-    private Boolean verifyEmbedded(Field variable, Annotation anotacion) {
-        try {
-            // final Embedded anotacionPK = (Embedded) anotacionEmbedded;
-            EmbeddedBeans embeddedBeans = new EmbeddedBeans();
-            embeddedBeans.setName(variable.getName());
-            embeddedBeans.setType(variable.getType().getName());
-            embeddedBeansList.add(embeddedBeans);
-            return true;
-        } catch (Exception e) {
-            System.out.println("verifyEmbedded() " + e.getLocalizedMessage());
-        }
-        return false;
-    }
+//    private Boolean verifyEmbedded(Field variable, Annotation anotacion) {
+//        try {
+//            // final Embedded anotacionPK = (Embedded) anotacionEmbedded;
+//            EmbeddedBeans embeddedBeans = new EmbeddedBeans();
+//            embeddedBeans.setName(variable.getName());
+//            embeddedBeans.setType(variable.getType().getName());
+//            embeddedBeansList.add(embeddedBeans);
+//            return true;
+//        } catch (Exception e) {
+//            System.out.println("verifyEmbedded() " + e.getLocalizedMessage());
+//        }
+//        return false;
+//    }
 
     /**
      * guarda la informacion de la anotacion
@@ -242,25 +251,25 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      * @param referenced
      * @return
      */
-    private Boolean verifyReferenced(Field variable, Annotation anotacion, Referenced referenced) {
-        try {
-
-            ReferencedBeans referencedBeans = new ReferencedBeans();
-            referencedBeans.setName(variable.getName());
-            referencedBeans.setType(variable.getType().getName());
-            referencedBeans.setDocument(referenced.documment());
-            referencedBeans.setField(referenced.field());
-            referencedBeans.setJavatype(referenced.javatype());
-            referencedBeans.setFacade(referenced.facade());
-            referencedBeans.setLazy(referenced.lazy());
-
-            referencedBeansList.add(referencedBeans);
-            return true;
-        } catch (Exception e) {
-            System.out.println("verifyReferenced() " + e.getLocalizedMessage());
-        }
-        return false;
-    }
+//    private Boolean verifyReferenced(Field variable, Annotation anotacion, Referenced referenced) {
+//        try {
+//
+//            ReferencedBeans referencedBeans = new ReferencedBeans();
+//            referencedBeans.setName(variable.getName());
+//            referencedBeans.setType(variable.getType().getName());
+//            referencedBeans.setDocument(referenced.documment());
+//            referencedBeans.setField(referenced.field());
+//            referencedBeans.setJavatype(referenced.javatype());
+//            referencedBeans.setFacade(referenced.facade());
+//            referencedBeans.setLazy(referenced.lazy());
+//
+//            referencedBeansList.add(referencedBeans);
+//            return true;
+//        } catch (Exception e) {
+//            System.out.println("verifyReferenced() " + e.getLocalizedMessage());
+//        }
+//        return false;
+//    }
 
     /**
      *
@@ -270,23 +279,23 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      * @param referenced
      * @return
      */
-    private Boolean verifyDatePattern(Field variable, Annotation anotacion, DatePattern datePattern) {
-        try {
-
-            DatePatternBeans datePatternBeans = new DatePatternBeans();
-            datePatternBeans.setName(variable.getName());
-            datePatternBeans.setType(variable.getType().getName());
-            datePatternBeans.setDateformat(datePattern.dateformat());
-
-            datePatternBeansList.add(datePatternBeans);
-            return true;
-        } catch (Exception e) {
-            System.out.println("verifyReferenced() " + e.getLocalizedMessage());
-        }
-        return false;
-    }
-
-   
+//    private Boolean verifyDatePattern(Field variable, Annotation anotacion, DatePattern datePattern) {
+//        try {
+//
+//            DatePatternBeans datePatternBeans = new DatePatternBeans();
+//            datePatternBeans.setName(variable.getName());
+//            datePatternBeans.setType(variable.getType().getName());
+//            datePatternBeans.setDateformat(datePattern.dateformat());
+//
+//            datePatternBeansList.add(datePatternBeans);
+//            return true;
+//        } catch (Exception e) {
+//            System.out.println("verifyReferenced() " + e.getLocalizedMessage());
+//        }
+//        return false;
+//    }
+//
+//   
 
     /**
      *
@@ -314,7 +323,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 }
             }
 
-            getDB().getCollection(collection).insertOne(toDocument(t));
+            getMongoDatabase().getCollection(collection).insertOne(toDocument(t));
 
             return true;
 
@@ -353,7 +362,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 }
             }
 
-            getDB().getCollection(collection).insertOne(doc);
+            getMongoDatabase().getCollection(collection).insertOne(doc);
 
             return true;
 
@@ -435,7 +444,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             } else {
                 docIndex = getIndexPrimaryKey();
             }
-            getDB().getCollection(collection).createIndex(docIndex);
+            getMongoDatabase().getCollection(collection).createIndex(docIndex);
             return true;
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "createIndex()").log(Level.SEVERE, null, e);
@@ -929,7 +938,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     public List<String> listCollecctions() {
         List<String> list = new ArrayList<>();
         try {
-            for (Document name : getDB().listCollections()) {
+            for (Document name : getMongoDatabase().listCollections()) {
                 list.add(name.get("name").toString());
             }
         } catch (Exception e) {
@@ -969,7 +978,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      */
     public Boolean createCollection(String nameCollection) {
         try {
-            getDB().createCollection(nameCollection);
+            getMongoDatabase().createCollection(nameCollection);
             return true;
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "existsCollection()").log(Level.SEVERE, null, e);
@@ -987,7 +996,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
         try {
             if (existsCollection(collection)) {
-                getDB().getCollection(collection).drop();
+                getMongoDatabase().getCollection(collection).drop();
                 return true;
             }
 
@@ -1009,7 +1018,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     public Boolean drop(String collection) {
 
         try {
-            getDB().getCollection(collection).drop();
+            getMongoDatabase().getCollection(collection).drop();
 
             return true;
 
@@ -1026,7 +1035,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     public Boolean dropDatabase() {
 
         try {
-            getDB().drop();
+            getMongoDatabase().drop();
 
             return true;
 
@@ -1214,7 +1223,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     public Boolean delete(String key, Object value) {
         try {
             Document doc = new Document(key, value);
-            DeleteResult dr = getDB().getCollection(collection).deleteOne(doc);
+            DeleteResult dr = getMongoDatabase().getCollection(collection).deleteOne(doc);
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
@@ -1233,7 +1242,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      */
     public Boolean delete(Document doc) {
         try {
-            DeleteResult dr = getDB().getCollection(collection).deleteOne(doc);
+            DeleteResult dr = getMongoDatabase().getCollection(collection).deleteOne(doc);
             if (dr.getDeletedCount() >= 0) {
                 return true;
             }
@@ -1254,7 +1263,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         Integer cont = 0;
         try {
             Document doc = new Document(key, value);
-            DeleteResult dr = getDB().getCollection(collection).deleteMany(doc);
+            DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(doc);
             cont = (int) dr.getDeletedCount();
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
@@ -1271,7 +1280,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     public Integer deleteMany(Document doc) {
         Integer cont = 0;
         try {
-            DeleteResult dr = getDB().getCollection(collection).deleteMany(doc);
+            DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(doc);
             cont = (int) dr.getDeletedCount();
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
@@ -1288,7 +1297,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     public Integer deleteAll() {
         Integer cont = 0;
         try {
-            DeleteResult dr = getDB().getCollection(collection).deleteMany(new Document());
+            DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(new Document());
 
             cont = (int) dr.getDeletedCount();
         } catch (Exception e) {
@@ -1315,7 +1324,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         try {
             search = findDocPrimaryKey(t2);
 
-            UpdateResult updateResult = getDB().getCollection(collection).updateOne(search, doc);
+            UpdateResult updateResult = getMongoDatabase().getCollection(collection).updateOne(search, doc);
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
@@ -1330,7 +1339,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
         try {
 
-            UpdateResult updateResult = getDB().getCollection(collection).updateOne(docSearch, docUpdate);
+            UpdateResult updateResult = getMongoDatabase().getCollection(collection).updateOne(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
@@ -1352,7 +1361,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
         try {
 
-            UpdateResult updateResult = getDB().getCollection(collection).updateMany(docSearch, docUpdate);
+            UpdateResult updateResult = getMongoDatabase().getCollection(collection).updateMany(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
@@ -1374,7 +1383,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         Integer documentosModificados = 0;
 
         try {
-            UpdateResult updateResult = getDB().getCollection(collection).replaceOne(Filters.eq(key, value), docUpdate);
+            UpdateResult updateResult = getMongoDatabase().getCollection(collection).replaceOne(Filters.eq(key, value), docUpdate);
 
             return (int) updateResult.getModifiedCount();
 
@@ -1396,7 +1405,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         Integer documentosModificados = 0;
 
         try {
-            UpdateResult updateResult = getDB().getCollection(collection).replaceOne(search, docUpdate);
+            UpdateResult updateResult = getMongoDatabase().getCollection(collection).replaceOne(search, docUpdate);
 
             return (int) updateResult.getModifiedCount();
 
@@ -1419,7 +1428,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
         try {
 
-            UpdateResult updateResult = getDB().getCollection(collection).replaceOne(docSearch, docUpdate);
+            UpdateResult updateResult = getMongoDatabase().getCollection(collection).replaceOne(docSearch, docUpdate);
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
