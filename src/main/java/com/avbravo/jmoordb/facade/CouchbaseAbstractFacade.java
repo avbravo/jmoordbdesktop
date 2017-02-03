@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -302,7 +303,9 @@ protected abstract Cluster getCluster();
      */
     public Boolean save(JsonObject  doc, Boolean... verifyID) {
         try {
-            getBucket().upsert(JsonDocument.create("u:king_arthur", doc));
+            String id = UUID.randomUUID().toString();
+            JsonDocument document = JsonDocument.create(id, doc);
+            JsonDocument response = getBucket().upsert(document);
             return true;
 
         } catch (Exception ex) {
@@ -313,7 +316,13 @@ protected abstract Cluster getCluster();
         return false;
     }
 
-  
+   /**
+     *
+     * @param t
+     * @param verifyID
+     * @return
+     */
+    
  @Override
     public Object find(String key, Object value) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
