@@ -1,8 +1,8 @@
 # jmoordb
 Object Documment Mapper for Java 
-Mapper for MongoDB and OrientDB
+Mapper for MongoDB ,OrientDB and Couchbase
 
-Es un Framework para integrar MongoDB/OrientDB con las aplicaciones Java de una manera sencilla.
+Es un Framework para integrar MongoDB/OrientDB/Cochbase con las aplicaciones Java de una manera sencilla.
 
 Sintaxis similiar a JPA
 
