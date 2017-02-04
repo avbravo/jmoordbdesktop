@@ -313,8 +313,10 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
             if (verificate) {
                 //Buscar llave primaria
 
-                T t_ = (T) find(findDocPrimaryKey(t));
+            //    T t_ = (T) find(findDocPrimaryKey(t));
+                T t_ = (T) findInternal(findDocPrimaryKey(t));
 
+//                if (t_ == null) {
                 if (t_ == null) {
                     // no lo encontro
                 } else {
@@ -352,7 +354,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                 //Buscar llave primaria
 
                 t1 = (T) documentToJava.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
-                T t_ = (T) find(findDocPrimaryKey(t1));
+                T t_ = (T) findInternal(findDocPrimaryKey(t1));
 
                 if (t_ == null) {
                     // no lo encontro
@@ -566,6 +568,21 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         }
         return Optional.empty();
 //        return null;
+    }
+    private T findInternal(Document document) {
+        try {
+            //   Object t = entityClass.newInstance();
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = db.getCollection(collection).find(document);
+            tlocal = (T) iterableSimple(iterable);
+            return tlocal;
+            //return (T) tlocal;
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("find() ", e);
+            new JmoordbException("find()");
+        }
+       return null;
     }
 
 
