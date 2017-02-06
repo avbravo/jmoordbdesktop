@@ -11,10 +11,6 @@ import com.avbravo.jmoordb.FieldBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.PrimaryKey;
 import com.avbravo.jmoordb.ReferencedBeans;
-import com.avbravo.jmoordb.anotations.DatePattern;
-import com.avbravo.jmoordb.anotations.Embedded;
-import com.avbravo.jmoordb.anotations.Id;
-import com.avbravo.jmoordb.anotations.Referenced;
 import com.avbravo.jmoordb.interfaces.CouchbaseAbstractInterface;
 import com.avbravo.jmoordb.internal.Analizador;
 import com.avbravo.jmoordb.internal.DocumentToJavaCouchbase;
@@ -22,12 +18,18 @@ import com.avbravo.jmoordb.internal.JavaToDocumentCouchbase;
 import com.avbravo.jmoordb.util.Util;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.document.EntityDocument;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
-import java.lang.annotation.Annotation;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +41,8 @@ import org.bson.Document;
  * @param <T>
  */
 public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInterface {
-protected abstract Cluster getCluster();
+
+    protected abstract Cluster getCluster();
     private JavaToDocumentCouchbase javaToDocumentCouchbase = new JavaToDocumentCouchbase();
     private DocumentToJavaCouchbase documentToJavaCouchbase = new DocumentToJavaCouchbase();
     T t1, tlocal;
@@ -57,8 +60,6 @@ protected abstract Cluster getCluster();
     List<FieldBeans> fieldBeansList = new ArrayList<>();
     Exception exception;
     Util util = new Util();
-
-       
 
     Integer contador = 0;
 
@@ -95,64 +96,14 @@ protected abstract Cluster getCluster();
          */
 
         final Field[] fields = entityClass.getDeclaredFields();
-          Analizador analizador = new Analizador();
-          analizador.analizar(fields);
+        Analizador analizador = new Analizador();
+        analizador.analizar(fields);
         primaryKeyList = analizador.getPrimaryKeyList();
         embeddedBeansList = analizador.getEmbeddedBeansList();
         referencedBeansList = analizador.getReferencedBeansList();
         datePatternBeansList = analizador.getDatePatternBeansList();
         fieldBeansList = analizador.getFieldBeansList();
-//        for (final Field field : fields) {
-//            Annotation anotacion = field.getAnnotation(Id.class);
-//            Annotation anotacionEmbedded = field.getAnnotation(Embedded.class);
-//            Annotation anotacionReferenced = field.getAnnotation(Referenced.class);
-//            Annotation anotacionDateFormat = field.getAnnotation(DatePattern.class);
-//
-//            Embedded embedded = field.getAnnotation(Embedded.class);
-//            Referenced referenced = field.getAnnotation(Referenced.class);
-//            DatePattern datePattern = field.getAnnotation(DatePattern.class);
-//
-//            field.setAccessible(true);
-//
-//            FieldBeans fieldBeans = new FieldBeans();
-//            fieldBeans.setIsKey(false);
-//            fieldBeans.setIsEmbedded(false);
-//            fieldBeans.setIsReferenced(false);
-//            fieldBeans.setName(field.getName());
-//            fieldBeans.setType(field.getType().getName());
-//
-//            //PrimaryKey
-//            if (anotacion != null) {
-//                verifyPrimaryKey(field, anotacion);
-//                fieldBeans.setIsKey(true);
-//
-//            }
-//            if (anotacionEmbedded != null) {
-//
-//                verifyEmbedded(field, anotacionEmbedded);
-//                fieldBeans.setIsEmbedded(true);
-//
-//            }
-//
-//            if (anotacionReferenced != null) {
-//
-//                verifyReferenced(field, anotacionReferenced, referenced);
-//                fieldBeans.setIsReferenced(true);
-//
-//            }
-//            if (anotacionDateFormat != null) {
-//
-//                verifyDatePattern(field, anotacionReferenced, datePattern);
-//                //fieldBeans.setIsReferenced(true);
-//
-//            }
 
-//            fieldBeansList.add(fieldBeans);
-//
-//            /**
-//             * carga los documentos embebidos
-//             */
-//        }
         //Llave primary
         if (primaryKeyList.isEmpty()) {
             exception = new Exception("No have primaryKey() ");
@@ -164,128 +115,36 @@ protected abstract Cluster getCluster();
 
     }
 
-    
-     @Override
+    @Override
     public Bucket getBucket() {
-        Bucket bucket  = getCluster().openBucket(database);
-        return bucket ;
+        Bucket bucket = getCluster().openBucket(database);
+        return bucket;
     }
-    /**
-     *
-     * @param variable
-     * @param anotacion
-     * @return
-     */
-//    private Boolean verifyPrimaryKey(Field variable, Annotation anotacion) {
-//        try {
-//            final Id anotacionPK = (Id) anotacion;
-//            PrimaryKey primaryKey = new PrimaryKey();
-//
-//            Boolean found = false;
-//            for (PrimaryKey pk : primaryKeyList) {
-//                if (pk.getName().equals(primaryKey.getName())) {
-//                    found = true;
-//                }
-//            }
-//
-//            primaryKey.setName(variable.getName());
-//            primaryKey.setType(variable.getType().getName());
-//
-//            // obtengo el valor del atributo
-//            if (!found) {
-//                primaryKeyList.add(primaryKey);
-//            }
-//            return true;
-//        } catch (Exception e) {
-//            System.out.println("verifyPrimaryKey() " + e.getLocalizedMessage());
-//        }
-//        return false;
-//    }
 
-    /**
-     *
-     * @param variable
-     * @param anotacion
-     * @return
-     */
-//    private Boolean verifyEmbedded(Field variable, Annotation anotacion) {
-//        try {
-//            // final Embedded anotacionPK = (Embedded) anotacionEmbedded;
-//            EmbeddedBeans embeddedBeans = new EmbeddedBeans();
-//            embeddedBeans.setName(variable.getName());
-//            embeddedBeans.setType(variable.getType().getName());
-//            embeddedBeansList.add(embeddedBeans);
-//            return true;
-//        } catch (Exception e) {
-//            System.out.println("verifyEmbedded() " + e.getLocalizedMessage());
-//        }
-//        return false;
-//    }
-
-    /**
-     * guarda la informacion de la anotacion
-     *
-     * @param variable
-     * @param anotacion
-     * @param referenced
-     * @return
-     */
-//    private Boolean verifyReferenced(Field variable, Annotation anotacion, Referenced referenced) {
-//        try {
-//
-//            ReferencedBeans referencedBeans = new ReferencedBeans();
-//            referencedBeans.setName(variable.getName());
-//            referencedBeans.setType(variable.getType().getName());
-//            referencedBeans.setDocument(referenced.documment());
-//            referencedBeans.setField(referenced.field());
-//            referencedBeans.setJavatype(referenced.javatype());
-//            referencedBeans.setFacade(referenced.facade());
-//            referencedBeans.setLazy(referenced.lazy());
-//
-//            referencedBeansList.add(referencedBeans);
-//            return true;
-//        } catch (Exception e) {
-//            System.out.println("verifyReferenced() " + e.getLocalizedMessage());
-//        }
-//        return false;
-//    }
-
-    /**
-     *
-     *
-     * @param variable
-     * @param anotacion
-     * @param referenced
-     * @return
-     */
-//    private Boolean verifyDatePattern(Field variable, Annotation anotacion, DatePattern datePattern) {
-//        try {
-//
-//            DatePatternBeans datePatternBeans = new DatePatternBeans();
-//            datePatternBeans.setName(variable.getName());
-//            datePatternBeans.setType(variable.getType().getName());
-//            datePatternBeans.setDateformat(datePattern.dateformat());
-//
-//            datePatternBeansList.add(datePatternBeans);
-//            return true;
-//        } catch (Exception e) {
-//            System.out.println("verifyReferenced() " + e.getLocalizedMessage());
-//        }
-//        return false;
-//    }
-
-    
-
-   
     /**
      *
      * @param doc
      * @param verifyID
      * @return
      */
-    public Boolean save(JsonObject  doc, Boolean... verifyID) {
+    public Boolean save(JsonObject doc, Boolean... verifyID) {
         try {
-            
+            Boolean verificate = true;
+            if (verifyID.length != 0) {
+                verificate = verifyID[0];
+
+            }
+//            if(verificate){
+//                 t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+//                T t_ = (T) findInternal(findDocPrimaryKey(t1));
+//
+//                if (t_ == null) {
+//                    // no lo encontro
+//                } else {
+//                    exception = new Exception("A document with the primary key already exists.");
+//                    return false;
+//                }
+//            }
             String id = UUID.randomUUID().toString();
             JsonDocument document = JsonDocument.create(id, doc);
             JsonDocument response = getBucket().upsert(document);
@@ -298,15 +157,176 @@ protected abstract Cluster getCluster();
         }
         return false;
     }
+    public Boolean saveQueYaTieneID(JsonDocument doc, Boolean... verifyID) {
+        try {
+            Boolean verificate = true;
+            if (verifyID.length != 0) {
+                verificate = verifyID[0];
 
-   /**
+            }
+//            if(verificate){
+//                 t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+//                T t_ = (T) findInternal(findDocPrimaryKey(t1));
+//
+//                if (t_ == null) {
+//                    // no lo encontro
+//                } else {
+//                    exception = new Exception("A document with the primary key already exists.");
+//                    return false;
+//                }
+//            }
+          //  String id = UUID.randomUUID().toString();
+//            JsonDocument document = JsonDocument.create(id, doc);
+           JsonDocument response = getBucket().upsert(doc);
+            return true;
+
+        } catch (Exception ex) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            new JmoordbException("save() " + ex.getLocalizedMessage());
+            exception = new Exception("save() " + ex.getLocalizedMessage());
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @return Document() correspondiente a la llave primaria
+     */
+    private JsonObject findDocPrimaryKey(T t2) {
+        JsonObject doc = JsonObject.create();
+        try {
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+                String name = "get" + util.letterToUpper(p.getName());
+                Method method;
+                try {
+
+                    method = entityClass.getDeclaredMethod(name);
+
+                    doc.put(p.getName(), method.invoke(t2));
+
+                } catch (Exception e) {
+                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    exception = new Exception("getDocumentPrimaryKey() ", e);
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            exception = new Exception("getDocumentPrimaryKey() ", e);
+        }
+        return doc;
+    }
+
+//     private T findInternal(Document document) {
+//        try {
+//             
+//            //   Object t = entityClass.newInstance();
+//            JsonDocument retrieved = bucket.get(id);
+//      
+//            tlocal = (T) iterableSimple(iterable);
+//            return tlocal;
+//            //return (T) tlocal;
+//        } catch (Exception e) {
+//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+//            exception = new Exception("find() ", e);
+//            new JmoordbException("find()");
+//        }
+//       return null;
+//    }
+    public List< T> findAll(String statement) {
+        list = new ArrayList<>();
+        //  Document sortQuery = new Document();
+        try {
+            N1qlQuery query = N1qlQuery.simple(statement);
+
+            N1qlQueryResult result = getBucket().query(query);
+
+            
+        
+            List<Map<String, Object>> content = new ArrayList<>();
+            Integer contador =0;
+            //     JSONSerializer serializer = new JSONSerializer();
+            for (N1qlQueryRow row : result) {
+               
+                      content.add(row.value().toMap());
+                       System.out.println("------> " + row.value());
+    
+                String idplaneta = row.value().getString("idplaneta");
+                String planeta = row.value().getString("planeta");
+                System.out.println("         idplaneta: "+idplaneta + " planeta: "+planeta);
+              
+             JsonDocument js = JsonDocument.create("1", row.value());
+         
+                System.out.println("        Contentent ("+ contador + " ) "+content.get(contador++).entrySet().toString());
+
+                      
+              //  System.out.println("paso 1>>");
+//                Map<String, Object> m = row.value().toMap();
+//                System.out.println("map " + m.toString());
+//                Set set = m.entrySet();
+//                Iterator i = set.iterator();
+
+//                // Display elements
+//                System.out.println("...........................");
+//                while (i.hasNext()) {
+//                    Map.Entry me = (Map.Entry) i.next();
+//                    System.out.println("key " + me.getKey() + " : " + me.getValue());
+//                }
+
+//                System.out.println("...........................");
+//                String var = (String) m.get(1);
+//                System.out.println("Value at index 2 is: " + var);
+//
+//
+//                System.out.println(" row:  " + row);
+//
+               
+            }
+            
+            System.out.println("###########################################");
+            System.out.println("content: "+content.toString());
+            System.out.println("++++++++++++++++++++++++++++++++++++++++");
+            
+
+
+            
+            for(Map<String, Object> e:content){
+                
+                e.forEach((k,v)->System.out.println("Item : " + k + " Count : " + v));
+                T t12 =(T) e.values();
+                System.out.println("t12 "+t12.toString());
+                System.out.println("---> en el for "+e.values());
+            }
+
+            //View todoView = this.getBucket().getView("todos");
+//prints:
+// "Hello, users in their fifties:
+// Walter!"
+//            if (docSort.length != 0) {
+//                sortQuery = docSort[0];
+//
+//            }
+            //    list = iterableList(iterable);
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("find() ", e);
+            new JmoordbException("find()");
+        }
+
+        return list;
+    }
+
+    public Boolean disconnetc() {
+        return getCluster().disconnect();
+    }
+
+    /**
      *
      * @param t
      * @param verifyID
      * @return
      */
-    
- @Override
+    @Override
     public Object find(String key, Object value) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

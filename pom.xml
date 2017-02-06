@@ -7,6 +7,11 @@
     <packaging>jar</packaging>
      <description>Java Mapper Object for MongoDB</description>
     <dependencies>
+         <dependency>
+            <groupId>net.sf.flexjson</groupId>
+            <artifactId>flexjson</artifactId>
+            <version>3.3</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
