@@ -24,7 +24,7 @@ import org.bson.Document;
  *
  * @author avbravo
  */
-public class DocumentToJava<T> {
+public class DocumentToJavaMongoDB<T> {
 
     private ClassDescriptorsCache cache = new ClassDescriptorsCache();
     List<EmbeddedBeans> embeddedBeansList = new ArrayList<>();

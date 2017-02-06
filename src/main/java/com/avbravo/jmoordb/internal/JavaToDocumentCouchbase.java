@@ -8,13 +8,10 @@ package com.avbravo.jmoordb.internal;
 import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.ReferencedBeans;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
+import com.couchbase.client.java.document.json.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.bson.Document;
 
 /**
  *
@@ -27,14 +24,14 @@ public class JavaToDocumentCouchbase {
     List<ReferencedBeans> referencedBeansList = new ArrayList<>();
     ReferencedBeans referencedBeans = new ReferencedBeans();
 
-    public Document toDocument(Object obj, List<EmbeddedBeans> embeddedBeansList, List<ReferencedBeans> referencedBeansList) {
+    public JsonObject toDocument(Object obj, List<EmbeddedBeans> embeddedBeansList, List<ReferencedBeans> referencedBeansList) {
         if (obj == null) {
             return null;
         }
         this.embeddedBeansList = embeddedBeansList;
         this.referencedBeansList = referencedBeansList;
         
-        Document dbObject = new Document();
+        JsonObject dbObject = JsonObject.empty();
         ClassDescriptor classDescriptor = cache.get(obj.getClass());
         for (FieldDescriptor fieldDescriptor : classDescriptor.getFields()) {
 
@@ -50,13 +47,13 @@ public class JavaToDocumentCouchbase {
  * @param idreferenciado
  * @return 
  */
-    private Document toDocumentReferenced(Object obj, String idreferenciado) {
+    private JsonObject toDocumentReferenced(Object obj, String idreferenciado) {
         if (obj == null) {
             return null;
         }
 
         
-        Document dbObject = new Document();
+      JsonObject dbObject = JsonObject.empty();
         ClassDescriptor classDescriptor = cache.get(obj.getClass());
         for (FieldDescriptor fieldDescriptor : classDescriptor.getFields()) {
             if (fieldDescriptor.getName().equals(idreferenciado)) {
@@ -80,7 +77,8 @@ public class JavaToDocumentCouchbase {
                 return fieldDescriptor.getFieldValue(object);
             } else {
                 Object[] array = (Object[]) fieldDescriptor.getFieldValue(object);
-                BasicDBList fieldObj = new BasicDBList();
+                List<JsonObject> fieldObj = new ArrayList<>();
+                
                 for (Object el : array) {
                     fieldObj.add(toDocument(el, embeddedBeansList, referencedBeansList));
                 }
@@ -90,13 +88,16 @@ public class JavaToDocumentCouchbase {
            
 
             Iterable col = (Iterable) fieldDescriptor.getFieldValue(object);
-            BasicDBList fieldObj = new BasicDBList();
+   List<JsonObject> fieldObj = new ArrayList<>();
+            
             if (col != null) {
                 for (Object el : col) {
                     
                     if (ReflectionUtils.isSimpleClass(el.getClass())) {
-                    
-                        fieldObj.add(el);
+                    JsonObject dbObject2 = JsonObject.empty();
+                    dbObject2.put("",el);
+//                        fieldObj.add(el);
+                        fieldObj.add(dbObject2);
                     } else {
                     
                         if (isEmbedded(fieldDescriptor.getName())) {
@@ -133,7 +134,7 @@ public class JavaToDocumentCouchbase {
                 if (fieldValue == null) {
                     return null;
                 }
-                DBObject dbObject = new BasicDBObject();
+               JsonObject dbObject = JsonObject.empty();
                 for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
                     dbObject.put(childDescriptor.getName(), toDBObjectRecursive(fieldValue, childDescriptor, embeddedBeansList, referencedBeansList));
                 }
@@ -147,7 +148,7 @@ public class JavaToDocumentCouchbase {
                     if (fieldValue == null) {
                         return null;
                     }
-                    DBObject dbObject = new BasicDBObject();
+                      JsonObject dbObject = JsonObject.empty();
                     for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
 
                         if (childDescriptor.getName().equals(referencedBeans.getField())) {
@@ -160,7 +161,7 @@ public class JavaToDocumentCouchbase {
                 } else {
                     System.out.println("                     [No es Referenced]");
                     new JmoordbException("@Embedded or @Reference is required for this field " + fieldDescriptor.getName());
-                    return new BasicDBObject();
+                    return JsonObject.empty();
                 }
 
             }
@@ -169,7 +170,7 @@ public class JavaToDocumentCouchbase {
             System.out.println("==========================");
             System.out.println("fieldDescriptor.isMap()");
             System.out.println("==========================");
-            DBObject dbObject = new BasicDBObject();
+               JsonObject dbObject = JsonObject.empty();
             Map map = (Map) fieldDescriptor.getFieldValue(object);
             for (Object key : map.keySet()) {
                 Object el = map.get(key);

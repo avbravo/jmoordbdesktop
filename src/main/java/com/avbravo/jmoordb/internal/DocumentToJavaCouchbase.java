@@ -8,10 +8,11 @@ package com.avbravo.jmoordb.internal;
 import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.ReferencedBeans;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
+import com.couchbase.client.java.document.json.JsonObject;
 import com.mongodb.DBObject;
+
+
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class DocumentToJavaCouchbase<T> {
     T t1;
 
     @SuppressWarnings("unchecked")
-    public <T> T fromDocument(Class<T> clazz, Document dbObject, List<EmbeddedBeans> embeddedBeansList, List<ReferencedBeans> referencedBeansList) {
+    public <T> T fromDocument(Class<T> clazz, JsonObject dbObject, List<EmbeddedBeans> embeddedBeansList, List<ReferencedBeans> referencedBeansList) {
 
         if (dbObject == null) {
             return null;
@@ -75,20 +76,25 @@ public class DocumentToJavaCouchbase<T> {
                 return fieldDescriptor.getSimpleValue(dbObject);
             } else if (fieldDescriptor.isArray()) {
                 //   System.out.println("   [ isArray]");
-                BasicDBList dbList = (BasicDBList) dbObject;
+              
+                
+                List<JsonObject>  dbList = new ArrayList<>();
+//                BasicDBList dbList = (BasicDBList) dbObject;
+                 dbList = (List<JsonObject>) dbObject;
+                 
                 if (fieldType.getComponentType().isPrimitive()) {
 
-                    return ReflectionUtils.dbListToArrayOfPrimitives(dbList, fieldType);
+                    return ReflectionUtilsCouchbase.dbListToArrayOfPrimitives(dbList, fieldType);
                 }
                 List list = new ArrayList();
                 for (Object listEl : dbList) {
 
-                    if (listEl == null || ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                    if (listEl == null || ReflectionUtilsCouchbase.isSimpleClass(listEl.getClass())) {
 
                         list.add(listEl);
                     } else {
 
-                        list.add(fromDocument((Class<Object>) fieldType.getComponentType(), (Document) listEl, embeddedBeansList, referencedBeansList));
+                        list.add(fromDocument((Class<Object>) fieldType.getComponentType(), (JsonObject) listEl, embeddedBeansList, referencedBeansList));
                     }
                 }
 
@@ -99,18 +105,18 @@ public class DocumentToJavaCouchbase<T> {
                 if (isEmbedded(fieldDescriptor.getName())) {
                     //      System.out.println("     [es Embebido]");
 
-                    List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+                    List<JsonObject> dbList = (ArrayList<JsonObject>) dbObject;
 
                     List list = (List) fieldDescriptor.newInstance();
 
                     for (Object listEl : dbList) {
 
-                        if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                        if (ReflectionUtilsCouchbase.isSimpleClass(listEl.getClass())) {
 
                             list.add(listEl);
                         } else {
 
-                            list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                            list.add(fromDocument(ReflectionUtilsCouchbase.genericType(fieldDescriptor.getField()), (JsonObject) listEl, embeddedBeansList, referencedBeansList));
                         }
                     }
 
@@ -122,13 +128,13 @@ public class DocumentToJavaCouchbase<T> {
                         if (referencedBeans.getLazy()) {
                             //    System.out.println("[    Lazy == true no carga los relacionados ]");
 
-                            List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+                            List<JsonObject> dbList = (ArrayList<JsonObject>) dbObject;
                             List list = (List) fieldDescriptor.newInstance();
                             for (Object listEl : dbList) {
-                                if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                                if (ReflectionUtilsCouchbase.isSimpleClass(listEl.getClass())) {
                                     list.add(listEl);
                                 } else {
-                                    list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                                    list.add(fromDocument(ReflectionUtilsCouchbase.genericType(fieldDescriptor.getField()), (JsonObject) listEl, embeddedBeansList, referencedBeansList));
                                 }
                             }
 
@@ -136,12 +142,12 @@ public class DocumentToJavaCouchbase<T> {
                         } else {
                             System.out.println("[    Lazy == false carga los relacionados ]");
 
-                            List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
+                            List<JsonObject> dbList = (ArrayList<JsonObject>) dbObject;
                             List list = (List) fieldDescriptor.newInstance();
 
                             for (Object listEl : dbList) {
 
-                                if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                                if (ReflectionUtilsCouchbase.isSimpleClass(listEl.getClass())) {
                                     list.add(listEl);
                                 } else {
                                     Document doc = (Document) listEl;
@@ -177,15 +183,15 @@ public class DocumentToJavaCouchbase<T> {
 
                     } else {
                         //  System.out.println("    No es[Embebido] ni  [Referenciado]");
-                        List<BasicDBObject> foundDocument = (ArrayList<BasicDBObject>) dbObject;
+                        List<JsonObject> foundDocument = (ArrayList<JsonObject>) dbObject;
                         List list = (List) fieldDescriptor.newInstance();
 
                         for (Object listEl : foundDocument) {
-                            if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                            if (ReflectionUtilsCouchbase.isSimpleClass(listEl.getClass())) {
                                 list.add(listEl);
                             } else {
 
-                                list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                                list.add(fromDocument(ReflectionUtilsCouchbase.genericType(fieldDescriptor.getField()), (JsonObject) listEl, embeddedBeansList, referencedBeansList));
                             }
                         }
 
@@ -195,34 +201,38 @@ public class DocumentToJavaCouchbase<T> {
 
             } else if (fieldDescriptor.isSet()) {
                 // System.out.println(" [isSet()  ]");
-                BasicDBList dbList = (BasicDBList) dbObject;
+                List<JsonObject>  dbList = new ArrayList<>();
+//                BasicDBList dbList = (BasicDBList) dbObject;
+                 dbList = (List<JsonObject>) dbObject;
                 Set set = (Set) fieldDescriptor.newInstance();
                 for (Object listEl : dbList) {
 
-                    if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
+                    if (ReflectionUtilsCouchbase.isSimpleClass(listEl.getClass())) {
 
                         set.add(listEl);
                     } else {
 
-                        set.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
+                        set.add(fromDocument(ReflectionUtilsCouchbase.genericType(fieldDescriptor.getField()), (JsonObject) listEl, embeddedBeansList, referencedBeansList));
                     }
                 }
                 return set;
             } else if (fieldDescriptor.isMap()) {
                 // System.out.println(" isMap()  ]");
-                DBObject dbMap = (DBObject) dbObject;
+//                DBObject dbMap = (DBObject) dbObject;
+                JsonObject dbMap = (JsonObject) dbObject;
+                
                 Map map = (Map) fieldDescriptor.newInstance();
-                for (Object key : dbMap.keySet()) {
+                for (Object key : dbMap.toMap().keySet()) {
 
                     Object mapEl = dbMap.get(key.toString());
-                    if (mapEl == null || ReflectionUtils.isSimpleClass(mapEl.getClass())) {
+                    if (mapEl == null || ReflectionUtilsCouchbase.isSimpleClass(mapEl.getClass())) {
 
                         map.put(key, mapEl);
                     } else {
 
                         map.put(key,
-                                fromDocument(ReflectionUtils.genericTypeOfMapValue(fieldDescriptor.getField()),
-                                        (Document) mapEl, embeddedBeansList, referencedBeansList));
+                                fromDocument(ReflectionUtilsCouchbase.genericTypeOfMapValue(fieldDescriptor.getField()),
+                                        (JsonObject) mapEl, embeddedBeansList, referencedBeansList));
                     }
                 }
                 return map;

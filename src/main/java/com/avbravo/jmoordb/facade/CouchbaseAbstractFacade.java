@@ -14,26 +14,30 @@ import com.avbravo.jmoordb.ReferencedBeans;
 import com.avbravo.jmoordb.interfaces.CouchbaseAbstractInterface;
 import com.avbravo.jmoordb.internal.Analizador;
 import com.avbravo.jmoordb.internal.DocumentToJavaCouchbase;
+import com.avbravo.jmoordb.internal.DocumentToJavaMongoDB;
 import com.avbravo.jmoordb.internal.JavaToDocumentCouchbase;
 import com.avbravo.jmoordb.util.Util;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.document.EntityDocument;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.mongodb.util.JSON;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bson.Document;
+
 
 /**
  *
@@ -45,6 +49,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
     protected abstract Cluster getCluster();
     private JavaToDocumentCouchbase javaToDocumentCouchbase = new JavaToDocumentCouchbase();
     private DocumentToJavaCouchbase documentToJavaCouchbase = new DocumentToJavaCouchbase();
+    private DocumentToJavaMongoDB documentToJavaMongoDB = new DocumentToJavaMongoDB();
     T t1, tlocal;
     private Class<T> entityClass;
     private String database;
@@ -127,6 +132,68 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
      * @param verifyID
      * @return
      */
+    
+        public JsonObject toDocument(Object t) {
+        return javaToDocumentCouchbase.toDocument(t, embeddedBeansList, referencedBeansList);
+    }
+        /**
+         * Crea un indice primario
+         * @return 
+         */
+        public Boolean createPrimaryIndex(){
+            try {
+                 getBucket().bucketManager().createN1qlPrimaryIndex(database,true, false);
+                return true;
+            } catch (Exception ex) {
+                 Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            new JmoordbException("createPrimaryIndex() " + ex.getLocalizedMessage());
+            exception = new Exception("createPrimaryIndex() " + ex.getLocalizedMessage());
+            }
+               return false; 
+        }
+//         private T findInternal(Document document) {
+//        try {
+//            //   Object t = entityClass.newInstance();
+//            MongoDatabase db = getMongoClient().getDatabase(database);
+//            FindIterable<Document> iterable = db.getCollection(collection).find(document);
+//            tlocal = (T) iterableSimple(iterable);
+//            return tlocal;
+//            //return (T) tlocal;
+//        } catch (Exception e) {
+//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+//            exception = new Exception("find() ", e);
+//            new JmoordbException("find()");
+//        }
+//       return null;
+//    }
+       /**
+     *
+     * @param t
+     * @param verifyID
+     * @return
+     */
+    public Boolean save(T t, Boolean... verifyID) {
+        try {
+            Boolean verificate = true;
+            if (verifyID.length != 0) {
+                verificate = verifyID[0];
+
+            }
+             JsonObject doc = toDocument(t);
+             String id = UUID.randomUUID().toString();
+            JsonDocument document = JsonDocument.create(id, doc);
+            JsonDocument response = getBucket().upsert(document);
+            return true;
+
+
+        } catch (Exception ex) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            new JmoordbException("save() " + ex.getLocalizedMessage());
+            exception = new Exception("save() " + ex.getLocalizedMessage());
+        }
+        return false;
+    }  
+        
     public Boolean save(JsonObject doc, Boolean... verifyID) {
         try {
             Boolean verificate = true;
@@ -249,29 +316,61 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
             for (N1qlQueryRow row : result) {
                
                       content.add(row.value().toMap());
-                       System.out.println("------> " + row.value());
-    
+                       System.out.println("row.value() ------> " + row.value());
+                System.out.println("content: "+content);
                 String idplaneta = row.value().getString("idplaneta");
                 String planeta = row.value().getString("planeta");
                 System.out.println("         idplaneta: "+idplaneta + " planeta: "+planeta);
-              
-             JsonDocument js = JsonDocument.create("1", row.value());
-         
-                System.out.println("        Contentent ("+ contador + " ) "+content.get(contador++).entrySet().toString());
+     
+//                JsonDocument doc = JsonDocument.create("walter", row.value());
+//                System.out.println("doc.id====  ");doc.id();
+//                JsonArray a=doc.content().getArray("default");
+                
+//                Document doc1 = (Document) JSON.parse(row.value().toString()); 
+/*
+System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++");
+                Document doc1 = Document.parse(row.value().toString());
+                System.out.println("-------------- Convertido ----------------");
+                System.out.println("doc1 "+doc1.toString());
+                System.out.println("doc1.json() "+doc1.toJson());
+
+              t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc1, embeddedBeansList, referencedBeansList);
+              list.add(t1);
+*/
+//              t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, row.value(), embeddedBeansList, referencedBeansList);
+//              list.add(t1);
+//               
+               
+//               
+//             JsonDocument js = JsonDocument.create("1", row.value());
+//         
+//                System.out.println("        Contentent ("+ contador + " ) "+content.get(contador++).entrySet().toString());
 
                       
               //  System.out.println("paso 1>>");
-//                Map<String, Object> m = row.value().toMap();
-//                System.out.println("map " + m.toString());
-//                Set set = m.entrySet();
-//                Iterator i = set.iterator();
+                Map<String, Object> m = row.value().toMap();
+                System.out.println("map " + m.toString());
+                Set set = m.entrySet();
+                Iterator i = set.iterator();
 
-//                // Display elements
-//                System.out.println("...........................");
-//                while (i.hasNext()) {
-//                    Map.Entry me = (Map.Entry) i.next();
-//                    System.out.println("key " + me.getKey() + " : " + me.getValue());
-//                }
+                // Display elements
+                System.out.println("...........................");
+                while (i.hasNext()) {
+                    Map.Entry me = (Map.Entry) i.next();
+                    System.out.println("key " + me.getKey() + " value: " + me.getValue());
+                    
+                    System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++");
+                    
+                Document doc1 = Document.parse(me.getValue().toString());
+                System.out.println("-------------- Convertido ----------------");
+                System.out.println("doc1 "+doc1.toString());
+                System.out.println("doc1.json() "+doc1.toJson());
+                 t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc1, embeddedBeansList, referencedBeansList);
+              list.add(t1);
+                }
+                
+                
+                
 
 //                System.out.println("...........................");
 //                String var = (String) m.get(1);
@@ -283,20 +382,20 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
                
             }
             
-            System.out.println("###########################################");
-            System.out.println("content: "+content.toString());
-            System.out.println("++++++++++++++++++++++++++++++++++++++++");
-            
+//            System.out.println("###########################################");
+//            System.out.println("content: "+content.toString());
+//            System.out.println("++++++++++++++++++++++++++++++++++++++++");
+//            
 
 
             
-            for(Map<String, Object> e:content){
-                
-                e.forEach((k,v)->System.out.println("Item : " + k + " Count : " + v));
-                T t12 =(T) e.values();
-                System.out.println("t12 "+t12.toString());
-                System.out.println("---> en el for "+e.values());
-            }
+//            for(Map<String, Object> e:content){
+//                
+//                e.forEach((k,v)->System.out.println("Item : " + k + " Count : " + v));
+//                T t12 =(T) e.values();
+//                System.out.println("t12 "+t12.toString());
+//                System.out.println("---> en el for "+e.values());
+//            }
 
             //View todoView = this.getBucket().getView("todos");
 //prints:
