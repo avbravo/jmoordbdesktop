@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -360,7 +361,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
      * @param statement
      * @return 
      */
-    public  T find(String statement) {
+    public Optional<T> find(String statement) {
         list = new ArrayList<>();
         //  Document sortQuery = new Document();
         try {
@@ -373,6 +374,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
+               return Optional.of(t1);
 
             }
 
@@ -382,7 +384,34 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
             new JmoordbException("find()");
         }
 
-        return list.get(0);
+        return Optional.empty();
+    }
+    
+    public Optional<T> find(String key, Object value) {
+        list = new ArrayList<>();
+        //  Document sortQuery = new Document();
+        try {
+            String statement ="select * from "+database + " where "+key + " = "+value;
+            N1qlQuery query = N1qlQuery.simple(statement);
+
+            N1qlQueryResult result = getBucket().query(query);
+            for (N1qlQueryRow row : result) {
+
+                Document doc = rowToDocument(row);
+
+                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                list.add(t1);
+               return Optional.of(t1);
+
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("find() ", e);
+            new JmoordbException("find()");
+        }
+
+        return Optional.empty();
     }
     /**
      * 
@@ -416,20 +445,8 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
     public Boolean disconnetc() {
         return getCluster().disconnect();
     }
+   
+   
 
-    /**
-     *
-     * @param t
-     * @param verifyID
-     * @return
-     */
-    @Override
-    public Object find(String key, Object value) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object find(Document document) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    
 }

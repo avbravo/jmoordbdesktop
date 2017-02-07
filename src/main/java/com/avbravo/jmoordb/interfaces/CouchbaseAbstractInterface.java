@@ -6,9 +6,6 @@
 package com.avbravo.jmoordb.interfaces;
 
 import com.couchbase.client.java.Bucket;
-import com.mongodb.client.MongoDatabase;
-import java.lang.reflect.Field;
-import org.bson.Document;
 
 /**
  *
@@ -21,7 +18,7 @@ public interface CouchbaseAbstractInterface <T>{
       
      public T find(String key, Object value);
 //     public T find(String key, Integer value);
-     public T find(Document document);
+//     public T find(Document document);
      
    //  public Boolean save(T t,Boolean... verifyID);
      
