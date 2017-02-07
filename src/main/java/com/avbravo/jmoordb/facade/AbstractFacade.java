@@ -1293,5 +1293,46 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         }
         return 0;
     }
+    
+    
+    private Object getPrimaryKeyValue(T t2) {
+        Object o = new Object();
+        try {
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+
+                String name = "get" + util.letterToUpper(p.getName());
+                Method method;
+                try {
+
+                    method = entityClass.getDeclaredMethod(name);
+                    o = method.invoke(t2);
+
+                } catch (Exception e) {
+                    Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    exception = new Exception("getDocumentPrimaryKey() ", e);
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            exception = new Exception("getDocumentPrimaryKey() ", e);
+        }
+        return o;
+    }
+    
+    private String getPrimaryKeyType(T t2) {
+        String type = "String";
+        try {
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+                type = p.getType();
+
+            }
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            exception = new Exception("getDocumentPrimaryKey() ", e);
+        }
+        return type;
+    }
 
 }
