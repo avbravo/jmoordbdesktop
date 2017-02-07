@@ -209,7 +209,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
                 verificate = verifyID[0];
 
             }
-            Document docId = jsonToPojo(doc.toString());
+            Document docId = jsonToDocument(doc.toString());
             T t_ = (T) documentToJavaMongoDB.fromDocument(entityClass, docId, embeddedBeansList, referencedBeansList);
 
             if (verificate) {
@@ -370,12 +370,39 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         }
         return docR;
     }
-
+/**
+ * 
+ * @param row
+ * @return 
+ */
     private Document rowToDocument(N1qlQueryRow row) {
         Document doc = new Document();
         String text = row.value().toString();
         try {
             String texto = row.value().toString();
+            Integer pos1 = texto.indexOf(":");
+
+            Integer pos2 = texto.lastIndexOf("}");
+
+            String n = texto.substring(pos1 + 1, pos2);
+
+            doc = Document.parse(n);
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "rowToString()").log(Level.SEVERE, null, e);
+            exception = new Exception("rowToString() ", e);
+        }
+        return doc;
+    }
+    /**
+     * 
+     * @param jsonObject
+     * @return 
+     */
+    private Document jsonObjectToDocument(JsonObject jsonObject) {
+        Document doc = new Document();
+        String text = jsonObject.toString();
+        try {
+            String texto = jsonObject.toString();
             Integer pos1 = texto.indexOf(":");
 
             Integer pos2 = texto.lastIndexOf("}");
@@ -395,7 +422,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
      * @param texto
      * @return
      */
-    private Document jsonToPojo(String texto) {
+    private Document jsonToDocument(String texto) {
         Document doc = new Document();
 
         try {
@@ -651,22 +678,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         return getCluster().disconnect();
     }
 
-//     public Integer deleteAll() {
-//        Integer cont = 0;
-//        try {
-////            while(!findAll().isEmpty()){
-//                for(List<T> t: findAll()){
-//                getBucket().remove(t1);
-//            }
-//           
-//
-//           
-//        } catch (Exception e) {
-//            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "removeDocument()").log(Level.SEVERE, null, e);
-//            exception = new Exception("removeAll() ", e);
-//        }
-//        return cont;
-//    }
+//     
     
      public Boolean delete(T t) {
         try {     
@@ -712,6 +724,24 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         } catch (Exception e) {
             Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "delete()").log(Level.SEVERE, null, e);
             exception = new Exception("deleteAll() ", e);
+        }
+        return false;
+    }
+     /**
+      * 
+      * @param t
+      * @return 
+      */
+       public Boolean update(T t) {
+        try {     
+           String value =(String)getPrimaryKeyValue(t);
+            JsonObject doc = toDocument(t);
+           JsonDocument document = JsonDocument.create(value, doc);
+           JsonDocument removed = getBucket().replace(document );
+          return true;
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "delete()").log(Level.SEVERE, null, e);
+            exception = new Exception("delete() ", e);
         }
         return false;
     }
