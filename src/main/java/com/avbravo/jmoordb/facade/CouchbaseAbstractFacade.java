@@ -567,4 +567,33 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         return getCluster().disconnect();
     }
 
+//     public Integer deleteAll() {
+//        Integer cont = 0;
+//        try {
+////            while(!findAll().isEmpty()){
+//                for(List<T> t: findAll()){
+//                getBucket().remove(t1);
+//            }
+//           
+//
+//           
+//        } catch (Exception e) {
+//            Logger.getLogger(AbstractFacade.class.getName() + "removeDocument()").log(Level.SEVERE, null, e);
+//            exception = new Exception("removeAll() ", e);
+//        }
+//        return cont;
+//    }
+    
+     public Boolean delete(String key, Object value) {
+        try {
+           String statement = "delete  from " + database + " where " + key + " = " + value;
+           
+           JsonDocument removed = getBucket().remove("document_id");
+          return true;
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "delete()").log(Level.SEVERE, null, e);
+            exception = new Exception("delete() ", e);
+        }
+        return false;
+    }
 }
