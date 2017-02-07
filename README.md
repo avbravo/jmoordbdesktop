@@ -19,7 +19,7 @@ Dependencias
           <dependency>
 	    <groupId>com.github.avbravo</groupId>
 	    <artifactId>jmoordb</artifactId>
-	    <version>0.1.9.2</version>
+	    <version>0.1.9.3</version>
 	 </dependency>
      </dependencies>
 
