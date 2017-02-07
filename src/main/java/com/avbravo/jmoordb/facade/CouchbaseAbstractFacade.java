@@ -152,21 +152,6 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         }
         return false;
     }
-//         private T findInternal(Document document) {
-//        try {
-//            //   Object t = entityClass.newInstance();
-//            MongoDatabase db = getMongoClient().getDatabase(database);
-//            FindIterable<Document> iterable = db.getCollection(collection).find(document);
-//            tlocal = (T) iterableSimple(iterable);
-//            return tlocal;
-//            //return (T) tlocal;
-//        } catch (Exception e) {
-//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-//            exception = new Exception("find() ", e);
-//            new JmoordbException("find()");
-//        }
-//       return null;
-//    }
 
     /**
      *
@@ -174,15 +159,30 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
      * @param verifyID
      * @return
      */
-    public Boolean save(T t, Boolean... verifyID) {
+    public Boolean save(T t, Boolean autoid, Boolean... verifyID) {
         try {
+            String id = "";
             Boolean verificate = true;
             if (verifyID.length != 0) {
                 verificate = verifyID[0];
-
             }
+            if (verificate) {
+                Optional<T> t2 = findById(t);
+
+                if (t2.isPresent()) {
+                    exception = new Exception("A document with the primary key already exists.");
+                    return false;
+                }
+            }
+
+            if (autoid) {
+                id = UUID.randomUUID().toString();
+            } else {
+                id = (String) getPrimaryKeyValue(t);
+            }
+
             JsonObject doc = toDocument(t);
-            String id = UUID.randomUUID().toString();
+//            String id = UUID.randomUUID().toString();
             JsonDocument document = JsonDocument.create(id, doc);
             JsonDocument response = getBucket().upsert(document);
             return true;
@@ -195,25 +195,37 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         return false;
     }
 
-    public Boolean save(JsonObject doc, Boolean... verifyID) {
+    /**
+     *
+     * @param doc
+     * @param verifyID
+     * @return
+     */
+    public Boolean save(JsonObject doc, Boolean autoid, Boolean... verifyID) {
         try {
+            String id = "";
             Boolean verificate = true;
             if (verifyID.length != 0) {
                 verificate = verifyID[0];
 
             }
-//            if(verificate){
-//                 t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
-//                T t_ = (T) findInternal(findDocPrimaryKey(t1));
-//
-//                if (t_ == null) {
-//                    // no lo encontro
-//                } else {
-//                    exception = new Exception("A document with the primary key already exists.");
-//                    return false;
-//                }
-//            }
-            String id = UUID.randomUUID().toString();
+            Document docId = jsonToPojo(doc.toString());
+            T t_ = (T) documentToJavaMongoDB.fromDocument(entityClass, docId, embeddedBeansList, referencedBeansList);
+
+            if (verificate) {
+
+                Optional<T> t2 = findById(t_);
+
+                if (t2.isPresent()) {
+                    exception = new Exception("A document with the primary key already exists.");
+                    return false;
+                }
+            }
+            if (autoid) {
+                id = UUID.randomUUID().toString();
+            } else {
+                id = (String) getPrimaryKeyValue(t_);
+            }
             JsonDocument document = JsonDocument.create(id, doc);
             JsonDocument response = getBucket().upsert(document);
             return true;
@@ -226,26 +238,28 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         return false;
     }
 
-    public Boolean saveQueYaTieneID(JsonDocument doc, Boolean... verifyID) {
+    /**
+     * guarda un documento que contiene un id generado automaticamente
+     *
+     * @param doc
+     * @param verifyID
+     * @return
+     */
+    public Boolean saveWithPreID(JsonDocument doc, Boolean... verifyID) {
         try {
             Boolean verificate = true;
             if (verifyID.length != 0) {
                 verificate = verifyID[0];
-
             }
-//            if(verificate){
-//                 t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
-//                T t_ = (T) findInternal(findDocPrimaryKey(t1));
-//
-//                if (t_ == null) {
-//                    // no lo encontro
-//                } else {
-//                    exception = new Exception("A document with the primary key already exists.");
-//                    return false;
-//                }
-//            }
-            //  String id = UUID.randomUUID().toString();
-//            JsonDocument document = JsonDocument.create(id, doc);
+            Document docId = jsonDocumentToDocument(doc);
+            T t_ = (T) documentToJavaMongoDB.fromDocument(entityClass, docId, embeddedBeansList, referencedBeansList);
+            if (verificate) {
+                Optional<T> t2 = findById(t_);
+                if (t2.isPresent()) {
+                    exception = new Exception("A document with the primary key already exists.");
+                    return false;
+                }
+            }
             JsonDocument response = getBucket().upsert(doc);
             return true;
 
@@ -255,6 +269,52 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
             exception = new Exception("save() " + ex.getLocalizedMessage());
         }
         return false;
+    }
+
+    /**
+     * devuelve el valor de la llave primaria
+     *
+     * @param t2
+     * @return
+     */
+    private Object getPrimaryKeyValue(T t2) {
+        Object o = new Object();
+        try {
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+
+                String name = "get" + util.letterToUpper(p.getName());
+                Method method;
+                try {
+
+                    method = entityClass.getDeclaredMethod(name);
+                    o = method.invoke(t2);
+
+                } catch (Exception e) {
+                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    exception = new Exception("getDocumentPrimaryKey() ", e);
+                }
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            exception = new Exception("getDocumentPrimaryKey() ", e);
+        }
+        return o;
+    }
+
+    private String getPrimaryKeyType(T t2) {
+        String type = "String";
+        try {
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+                type = p.getType();
+
+            }
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            exception = new Exception("getDocumentPrimaryKey() ", e);
+        }
+        return type;
     }
 
     /**
@@ -286,28 +346,31 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         return doc;
     }
 
-//     private T findInternal(Document document) {
-//        try {
-//             
-//            //   Object t = entityClass.newInstance();
-//            JsonDocument retrieved = bucket.get(id);
-//      
-//            tlocal = (T) iterableSimple(iterable);
-//            return tlocal;
-//            //return (T) tlocal;
-//        } catch (Exception e) {
-//            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-//            exception = new Exception("find() ", e);
-//            new JmoordbException("find()");
-//        }
-//       return null;
-//    }
     /**
      * convierte un row a String Json
      *
      * @param row
      * @return
      */
+    private Document jsonDocumentToDocument(JsonDocument doc) {
+        Document docR = new Document();
+        String texto = doc.toString();
+        try {
+
+            Integer pos1 = texto.indexOf("content=");
+
+            Integer pos2 = texto.lastIndexOf(", mutationToken=");
+
+            String n = texto.substring(pos1 + 8, pos2);
+            System.out.println("n:::  " + n);
+            docR = Document.parse(n);
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "rowToString()").log(Level.SEVERE, null, e);
+            exception = new Exception("rowToString() ", e);
+        }
+        return docR;
+    }
+
     private Document rowToDocument(N1qlQueryRow row) {
         Document doc = new Document();
         String text = row.value().toString();
@@ -326,16 +389,72 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         }
         return doc;
     }
-    
+
+    /**
+     *
+     * @param texto
+     * @return
+     */
+    private Document jsonToPojo(String texto) {
+        Document doc = new Document();
+
+        try {
+
+            doc = Document.parse(texto);
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "rowToString()").log(Level.SEVERE, null, e);
+            exception = new Exception("rowToString() ", e);
+        }
+        return doc;
+    }
+
     /**
      * Busca todos los documentos
-     * @return 
+     *
+     * @return
      */
+    /**
+     * Busca por la llave primaria del documento
+     *
+     * @param t2
+     * @return
+     */
+    public Optional<T> findById(T t2) {
+        String statement = "select * from " + database;
+        String where = " where ";
+        try {
+            Integer contador = 0;
+            Object t = entityClass.newInstance();
+            for (PrimaryKey p : primaryKeyList) {
+                String name = "get" + util.letterToUpper(p.getName());
+                Method method;
+                try {
+                    if (contador > 0) {
+                        where += " , ";
+                    }
+                    method = entityClass.getDeclaredMethod(name);
+                    where += p.getName() + " = '" + method.invoke(t2) + "'";
+                    contador++;
+                } catch (Exception e) {
+                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    exception = new Exception("findById() ", e);
+                }
+            }
+
+            statement += where;
+
+            return find(statement);
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
+            exception = new Exception("findById() ", e);
+        }
+        return Optional.empty();
+    }
 
     public List< T> findAll() {
         list = new ArrayList<>();
         try {
-            String statement ="select * from "+database;
+            String statement = "select * from " + database;
             N1qlQuery query = N1qlQuery.simple(statement);
 
             N1qlQueryResult result = getBucket().query(query);
@@ -356,10 +475,11 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
         return list;
     }
+
     /**
-     * 
+     *
      * @param statement
-     * @return 
+     * @return
      */
     public Optional<T> find(String statement) {
         list = new ArrayList<>();
@@ -374,7 +494,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
-               return Optional.of(t1);
+                return Optional.of(t1);
 
             }
 
@@ -386,12 +506,12 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
         return Optional.empty();
     }
-    
+
     public Optional<T> find(String key, Object value) {
         list = new ArrayList<>();
         //  Document sortQuery = new Document();
         try {
-            String statement ="select * from "+database + " where "+key + " = "+value;
+            String statement = "select * from " + database + " where " + key + " = " + value;
             N1qlQuery query = N1qlQuery.simple(statement);
 
             N1qlQueryResult result = getBucket().query(query);
@@ -401,7 +521,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
-               return Optional.of(t1);
+                return Optional.of(t1);
 
             }
 
@@ -413,10 +533,11 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
         return Optional.empty();
     }
+
     /**
-     * 
+     *
      * @param statement
-     * @return 
+     * @return
      */
     public List< T> findBy(String statement) {
         list = new ArrayList<>();
@@ -442,11 +563,8 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         return list;
     }
 
-    public Boolean disconnetc() {
+    public Boolean disconnect() {
         return getCluster().disconnect();
     }
-   
-   
 
-    
 }
