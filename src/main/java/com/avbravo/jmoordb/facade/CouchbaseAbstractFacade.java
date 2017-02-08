@@ -13,9 +13,10 @@ import com.avbravo.jmoordb.PrimaryKey;
 import com.avbravo.jmoordb.ReferencedBeans;
 import com.avbravo.jmoordb.interfaces.CouchbaseAbstractInterface;
 import com.avbravo.jmoordb.internal.Analizador;
+
 import com.avbravo.jmoordb.internal.DocumentToJavaCouchbase;
-import com.avbravo.jmoordb.internal.DocumentToJavaMongoDB;
 import com.avbravo.jmoordb.internal.JavaToDocumentCouchbase;
+import com.avbravo.jmoordb.internal.Test;
 import com.avbravo.jmoordb.util.Util;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
@@ -55,8 +56,8 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
     protected abstract Cluster getCluster();
     private JavaToDocumentCouchbase javaToDocumentCouchbase = new JavaToDocumentCouchbase();
+   
     private DocumentToJavaCouchbase documentToJavaCouchbase = new DocumentToJavaCouchbase();
-    private DocumentToJavaMongoDB documentToJavaMongoDB = new DocumentToJavaMongoDB();
     T t1, tlocal;
     private Class<T> entityClass;
     private String database;
@@ -217,7 +218,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
             }
             Document docId = jsonToDocument(doc.toString());
-            T t_ = (T) documentToJavaMongoDB.fromDocument(entityClass, docId, embeddedBeansList, referencedBeansList);
+            T t_ = (T) documentToJavaCouchbase.fromDocument(entityClass, docId, embeddedBeansList, referencedBeansList);
 
             if (verificate) {
 
@@ -259,7 +260,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
                 verificate = verifyID[0];
             }
             Document docId = jsonDocumentToDocument(doc);
-            T t_ = (T) documentToJavaMongoDB.fromDocument(entityClass, docId, embeddedBeansList, referencedBeansList);
+            T t_ = (T) documentToJavaCouchbase.fromDocument(entityClass, docId, embeddedBeansList, referencedBeansList);
             if (verificate) {
                 Optional<T> t2 = findById(t_);
                 if (t2.isPresent()) {
@@ -543,8 +544,8 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
             for (N1qlQueryRow row : result) {
 
                 Document doc = rowToDocument(row);
-
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+Test.msg("Invocar fromDocument()");
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
 
             }
@@ -574,7 +575,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 Document doc = rowToDocument(row);
 
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
                 return Optional.of(t1);
 
@@ -603,7 +604,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 Document doc = rowToDocument(row);
 
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
                 return Optional.of(t1);
 
@@ -630,7 +631,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 Document doc = rowToDocument(row);
 
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
                 return Optional.of(t1);
 
@@ -660,7 +661,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 Document doc = rowToDocument(row);
 
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
 
             }
@@ -687,7 +688,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 Document doc = rowToDocument(row);
 
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
 
             }
@@ -715,7 +716,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
                 Document doc = searchQueryRowToDocument(row);
 
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
 
             }
@@ -742,7 +743,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         
                 Document doc = searchQueryRowToDocument(row);
 
-                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
 
             }
