@@ -48,7 +48,7 @@ import java.util.logging.Logger;
 import org.bson.Document;
 
 /**
- *
+ *for Couchbase
  * @author avbravo
  * @param <T>
  */
@@ -56,8 +56,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
     protected abstract Cluster getCluster();
     private JavaToDocumentCouchbase javaToDocumentCouchbase = new JavaToDocumentCouchbase();
-   
-    private DocumentToJavaCouchbase documentToJavaCouchbase = new DocumentToJavaCouchbase();
+       private DocumentToJavaCouchbase documentToJavaCouchbase = new DocumentToJavaCouchbase();
     T t1, tlocal;
     private Class<T> entityClass;
     private String database;
