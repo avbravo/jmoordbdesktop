@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -709,6 +710,10 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         }
         return false;
     }
+     /**
+      * 
+      * @return 
+      */
      public Boolean deleteAll() {
         try {
             List<T> list =findAll();
@@ -737,11 +742,65 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
            String value =(String)getPrimaryKeyValue(t);
             JsonObject doc = toDocument(t);
            JsonDocument document = JsonDocument.create(value, doc);
-           JsonDocument removed = getBucket().replace(document );
+           JsonDocument documentupdate= getBucket().replace(document );
           return true;
         } catch (Exception e) {
-            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "delete()").log(Level.SEVERE, null, e);
-            exception = new Exception("delete() ", e);
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "update()").log(Level.SEVERE, null, e);
+            exception = new Exception("update() ", e);
+        }
+        return false;
+    }
+       /**
+        * 
+        * @param doc
+        * @return 
+        */
+       public Boolean replace(JsonDocument doc) {
+        try {     
+
+JsonDocument inserted = getBucket().replace(doc);
+          return true;
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "update()").log(Level.SEVERE, null, e);
+            exception = new Exception("update() ", e);
+        }
+        return false;
+    }
+       /**
+        * 
+        * @param doc
+        * @return 
+        */
+       public Boolean upsert(JsonDocument doc) {
+        try {     
+
+JsonDocument inserted = getBucket().upsert(doc);
+          return true;
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "update()").log(Level.SEVERE, null, e);
+            exception = new Exception("update() ", e);
+        }
+        return false;
+    }
+       public Boolean update(String statement) {
+        try {     
+            String paStatement = "update planetas USE KEYS $id SET planetas = $planetas";
+JsonObject paramValues = JsonObject.create().put("id", "4").put("planetas", "theLocation");
+N1qlQuery query = N1qlQuery.parameterized(statement, paramValues);
+
+//         N1qlQuery result = getBucket().query(statement);
+getBucket().query(query);
+//
+//
+//
+//           String value =(String)getPrimaryKeyValue(t);
+//            JsonObject doc = toDocument(t);
+//           JsonDocument document = JsonDocument.create(value, doc);
+//           JsonDocument removed = getBucket().replace(document );
+          return true;
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "update()").log(Level.SEVERE, null, e);
+            exception = new Exception("update() ", e);
         }
         return false;
     }
