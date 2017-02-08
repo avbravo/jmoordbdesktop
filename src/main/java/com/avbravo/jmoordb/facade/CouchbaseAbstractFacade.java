@@ -19,12 +19,18 @@ import com.avbravo.jmoordb.internal.JavaToDocumentCouchbase;
 import com.avbravo.jmoordb.util.Util;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.PersistTo;
+import com.couchbase.client.java.ReplicateTo;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.couchbase.client.java.search.SearchQuery;
+import com.couchbase.client.java.search.queries.MatchQuery;
+import com.couchbase.client.java.search.result.SearchQueryResult;
+import com.couchbase.client.java.search.result.SearchQueryRow;
 import com.mongodb.util.JSON;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -394,6 +400,24 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         }
         return doc;
     }
+    private Document searchQueryRowToDocument(SearchQueryRow row) {
+        Document doc = new Document();
+        String text = row.explanation().toString();
+        try {
+            String texto = row.explanation().toString();
+            Integer pos1 = texto.indexOf(":");
+
+            Integer pos2 = texto.lastIndexOf("}");
+
+            String n = texto.substring(pos1 + 1, pos2);
+
+            doc = Document.parse(n);
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "searchQueryRowToDocument").log(Level.SEVERE, null, e);
+            exception = new Exception("searchQueryRowToDocument ", e);
+        }
+        return doc;
+    }
     /**
      * 
      * @param jsonObject
@@ -674,6 +698,61 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
         return list;
     }
+    /**
+     * 
+     * @param searchQuery
+     * @return 
+     */
+    public List< T> fullTexSearch (SearchQuery searchQuery) {
+        list = new ArrayList<>();
+        try {
+       
+        
+            SearchQueryResult result = getBucket().query(searchQuery);
+            for (SearchQueryRow row : result) {
+
+                Document doc = searchQueryRowToDocument(row);
+
+                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                list.add(t1);
+
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findBy() ", e);
+            new JmoordbException("findBy()");
+        }
+
+        return list;
+    }
+    /**
+     * 
+     * @param fts
+     * @return 
+     */
+    public List< T> fullTexSearch (MatchQuery fts) {
+        list = new ArrayList<>();
+        try {
+       
+        SearchQueryResult result = getBucket().query(new SearchQuery(database, fts));
+        for (SearchQueryRow row : result) {
+            System.out.println("row "+row.toString());
+                Document doc = searchQueryRowToDocument(row);
+
+                t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                list.add(t1);
+
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findBy() ", e);
+            new JmoordbException("findBy()");
+        }
+
+        return list;
+    }
 
     public Boolean disconnect() {
         return getCluster().disconnect();
@@ -775,6 +854,28 @@ JsonDocument inserted = getBucket().replace(doc);
         try {     
 
 JsonDocument inserted = getBucket().upsert(doc);
+        
+       getBucket().replace(doc);
+          return true;
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "update()").log(Level.SEVERE, null, e);
+            exception = new Exception("update() ", e);
+        }
+        return false;
+    }
+       /**
+        * 
+        * @param doc
+        * @param persist
+        * @param replicate
+        * @return 
+        */
+       public Boolean upsert(JsonDocument doc,PersistTo persist, ReplicateTo replicate) {
+        try {     
+
+JsonDocument inserted = getBucket().upsert(doc);
+        
+       getBucket().replace(doc, persist, replicate);
           return true;
         } catch (Exception e) {
             Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "update()").log(Level.SEVERE, null, e);
