@@ -369,7 +369,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
             Integer pos2 = texto.lastIndexOf(", mutationToken=");
 
             String n = texto.substring(pos1 + 8, pos2);
-            System.out.println("n:::  " + n);
+         
             docR = Document.parse(n);
         } catch (Exception e) {
             Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "rowToString()").log(Level.SEVERE, null, e);
@@ -534,7 +534,9 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
     public List< T> findAll() {
         list = new ArrayList<>();
         try {
+
             String statement = "select * from " + database;
+    
             N1qlQuery query = N1qlQuery.simple(statement);
 
             N1qlQueryResult result = getBucket().query(query);
@@ -737,7 +739,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
        
         SearchQueryResult result = getBucket().query(new SearchQuery(database, fts));
         for (SearchQueryRow row : result) {
-            System.out.println("row "+row.toString());
+        
                 Document doc = searchQueryRowToDocument(row);
 
                 t1 = (T) documentToJavaMongoDB.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
