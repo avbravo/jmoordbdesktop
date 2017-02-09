@@ -70,3 +70,8 @@ Las operaciones CRUD se implementan atraves de un Facade.
    
    
 # jmoordb Documentación y Libro <https://www.gitbook.com/book/avbravo/jmoordb/details>
+
+Publicaciones 
+Adam Bien 
+JPA AND MICROSERVICES, RXJAVA, CRUD AND TX, GRADLE, CROSS FIELD VALIDATION, LICENSING, MDA OR TOPICS FOR THE 35TH AIRHACKS.TV
+<http://adambien.blog/roller/abien/entry/jpa_and_microservices_rxjava_crud>
