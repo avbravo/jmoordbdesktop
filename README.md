@@ -75,3 +75,6 @@ Publicaciones
 Adam Bien 
 JPA AND MICROSERVICES, RXJAVA, CRUD AND TX, GRADLE, CROSS FIELD VALIDATION, LICENSING, MDA OR TOPICS FOR THE 35TH AIRHACKS.TV
 <http://adambien.blog/roller/abien/entry/jpa_and_microservices_rxjava_crud>
+
+Video
+<https://www.youtube.com/watch?v=eSoJYBOgIHk>
