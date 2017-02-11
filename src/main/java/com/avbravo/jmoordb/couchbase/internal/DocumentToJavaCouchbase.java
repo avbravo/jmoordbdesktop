@@ -3,14 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.internal;
+package com.avbravo.jmoordb.couchbase.internal;
 
 import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.ReferencedBeans;
+import com.avbravo.jmoordb.util.ClassDescriptor;
+import com.avbravo.jmoordb.util.ClassDescriptorsCache;
+import com.avbravo.jmoordb.util.FieldDescriptor;
+import com.avbravo.jmoordb.util.ReflectionUtils;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;

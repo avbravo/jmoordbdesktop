@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.interfaces;
+package com.avbravo.jmoordb.couchbase.interfaces;
 
 import com.couchbase.client.java.Bucket;
 

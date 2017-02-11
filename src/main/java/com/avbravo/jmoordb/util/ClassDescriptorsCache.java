@@ -1,4 +1,4 @@
-package com.avbravo.jmoordb.internal;
+package com.avbravo.jmoordb.util;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

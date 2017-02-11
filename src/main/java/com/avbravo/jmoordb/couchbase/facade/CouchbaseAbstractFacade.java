@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.facade;
+package com.avbravo.jmoordb.couchbase.facade;
 
 import com.avbravo.jmoordb.DatePatternBeans;
 import com.avbravo.jmoordb.EmbeddedBeans;
@@ -11,19 +11,17 @@ import com.avbravo.jmoordb.FieldBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.PrimaryKey;
 import com.avbravo.jmoordb.ReferencedBeans;
-import com.avbravo.jmoordb.interfaces.CouchbaseAbstractInterface;
-import com.avbravo.jmoordb.internal.Analizador;
+import com.avbravo.jmoordb.couchbase.interfaces.CouchbaseAbstractInterface;
 
-import com.avbravo.jmoordb.internal.DocumentToJavaCouchbase;
-import com.avbravo.jmoordb.internal.JavaToDocumentCouchbase;
-import com.avbravo.jmoordb.internal.Test;
+import com.avbravo.jmoordb.couchbase.internal.DocumentToJavaCouchbase;
+import com.avbravo.jmoordb.couchbase.internal.JavaToDocumentCouchbase;
+import com.avbravo.jmoordb.util.Analizador;
 import com.avbravo.jmoordb.util.Util;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.PersistTo;
 import com.couchbase.client.java.ReplicateTo;
 import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
@@ -31,17 +29,13 @@ import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.search.SearchQuery;
 import com.couchbase.client.java.search.queries.MatchQuery;
 import com.couchbase.client.java.search.result.SearchQueryResult;
-import com.couchbase.client.java.search.result.SearchQueryRow;
-import com.mongodb.util.JSON;
+import com.couchbase.client.java.search.result.SearchQueryRow; 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;

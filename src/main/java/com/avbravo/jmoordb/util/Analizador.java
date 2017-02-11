@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.internal;
+package com.avbravo.jmoordb.util;
 
 import com.avbravo.jmoordb.DatePatternBeans;
 import com.avbravo.jmoordb.EmbeddedBeans;

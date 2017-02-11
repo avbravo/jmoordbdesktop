@@ -1,4 +1,4 @@
-package com.avbravo.jmoordb.internal;
+package com.avbravo.jmoordb.util;
 
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.anotations.Ignore;

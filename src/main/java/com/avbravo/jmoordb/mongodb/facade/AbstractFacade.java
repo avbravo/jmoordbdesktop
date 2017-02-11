@@ -3,18 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.facade;
+package com.avbravo.jmoordb.mongodb.facade;
 
+import com.avbravo.jmoordb.couchbase.facade.CouchbaseAbstractFacade;
 import com.avbravo.jmoordb.DatePatternBeans;
 import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.FieldBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.PrimaryKey;
 import com.avbravo.jmoordb.ReferencedBeans;
-import com.avbravo.jmoordb.interfaces.AbstractInterface;
-import com.avbravo.jmoordb.internal.Analizador;
-import com.avbravo.jmoordb.internal.DocumentToJavaMongoDB;
-import com.avbravo.jmoordb.internal.JavaToDocument;
+import com.avbravo.jmoordb.mongodb.interfaces.AbstractInterface;
+import com.avbravo.jmoordb.mongodb.internal.DocumentToJavaMongoDB;
+import com.avbravo.jmoordb.mongodb.internal.JavaToDocument;
+import com.avbravo.jmoordb.util.Analizador;
 import com.avbravo.jmoordb.util.Util;
 import com.mongodb.Block;
 import com.mongodb.CursorType;
