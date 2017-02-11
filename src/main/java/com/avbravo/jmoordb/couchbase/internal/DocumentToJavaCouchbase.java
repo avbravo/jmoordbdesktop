@@ -166,12 +166,14 @@ public class DocumentToJavaCouchbase<T> {
                                     String value = "";
                                     if (referencedBeans.getJavatype().toLowerCase().equals("integer")) {
                                         //@Id de tipo Integer
+                                        Test.msg(" @Id de tipo Integer");
                                         Integer n = (Integer) doc.get(referencedBeans.getField());
                                         method = cls.getDeclaredMethod("findById", String.class, Integer.class);
 
                                         t1 = (T) method.invoke(obj, referencedBeans.getField(), n);
 
                                     } else {
+                                        Test.msg(" @Id de tipo String");
                                         value = (String) doc.get(referencedBeans.getField());
                                         paramString[1] = String.class;
                                         method = cls.getDeclaredMethod("findById", paramString);
@@ -322,8 +324,10 @@ public class DocumentToJavaCouchbase<T> {
                                  Test.msg("    param= "+referencedBeans.getField());
                                 t1 = (T) method.invoke(obj, param);
                                 Test.msg("   paso  el  invoke t1");
+                               
                             }
-
+                            Test.msg( " voy a imprimir t1");
+ Test.msg(" t1= "+t1.toString());
                             return t1;
 
                         }

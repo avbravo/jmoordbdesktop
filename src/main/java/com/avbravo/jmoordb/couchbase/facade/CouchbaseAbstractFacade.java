@@ -16,6 +16,7 @@ import com.avbravo.jmoordb.couchbase.interfaces.CouchbaseAbstractInterface;
 import com.avbravo.jmoordb.couchbase.internal.DocumentToJavaCouchbase;
 import com.avbravo.jmoordb.couchbase.internal.JavaToDocumentCouchbase;
 import com.avbravo.jmoordb.util.Analizador;
+import com.avbravo.jmoordb.util.Test;
 import com.avbravo.jmoordb.util.Util;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
@@ -663,19 +664,22 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
      * @return 
      */
     public T search(String key, Object value) {
-        list = new ArrayList<>();
+
         //  Document sortQuery = new Document();
         try {
-            String statement = "select * from " + database + " where " + key + " = " + value;
+            String statement = "select * from " + database + " where " + key + " = '" + value+"'";
+    
             N1qlQuery query = N1qlQuery.simple(statement);
 
             N1qlQueryResult result = getBucket().query(query);
+
+            Boolean o=false;
             for (N1qlQueryRow row : result) {
 
                 Document doc = rowToDocument(row);
 
                 t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
-                list.add(t1);
+  
                 return t1;
                 
 
@@ -683,8 +687,8 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
         } catch (Exception e) {
             Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-            exception = new Exception("find() ", e);
-            new JmoordbException("find()");
+            exception = new Exception("search() ", e);
+            new JmoordbException("search()");
         }
 
         return null;
