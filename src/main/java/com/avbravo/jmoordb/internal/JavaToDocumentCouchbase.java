@@ -227,7 +227,7 @@ public class JavaToDocumentCouchbase {
             for (ReferencedBeans eb : referencedBeansList) {
                 if (eb.getName().equals(name)) {
                     referencedBeans = eb;
-                    //   System.out.println("Referenced() "+eb.toString());
+               
                     return true;
                 }
             }

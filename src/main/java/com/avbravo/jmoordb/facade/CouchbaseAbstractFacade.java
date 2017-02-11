@@ -84,7 +84,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
     }
 
     public CouchbaseAbstractFacade(Class<T> entityClass, String database, String collection, Boolean... lazy) {
-//        databaseImplement = new DatabaseImplement
+
         this.entityClass = entityClass;
         this.database = database;
         this.collection = collection;
@@ -143,7 +143,7 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         JsonObject jsonObject = JsonObject.empty();
         try {
           
-              //jsonObject = javaToDocumentCouchbase.toDocument(t, embeddedBeansList, referencedBeansList);
+              
          jsonObject =     javaToDocumentCouchbase.toDocument(t, embeddedBeansList, referencedBeansList);
              
         } catch (Exception e) {
@@ -198,12 +198,12 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
             } else {
                 id = (String) getPrimaryKeyValue(t);
             }
-Test.msg(" {call toDocument()} ");
+
             JsonObject doc = toDocument(t);
-            Test.msg(" {save()} "+doc.toString());
+
 //            String id = UUID.randomUUID().toString();
             JsonDocument document = JsonDocument.create(id, doc);
-            Test.msg(" {document()} "+document.toString());
+
             JsonDocument response = getBucket().upsert(document);
             return true;
 
@@ -556,7 +556,7 @@ Test.msg(" {call toDocument()} ");
             for (N1qlQueryRow row : result) {
 
                 Document doc = rowToDocument(row);
-Test.msg("Invocar fromDocument()");
+
                 t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
                 list.add(t1);
 

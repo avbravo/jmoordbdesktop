@@ -34,11 +34,11 @@ public class DocumentToJavaCouchbase<T> {
 
     @SuppressWarnings("unchecked")
     public <T> T fromDocument(Class<T> clazz, Document dbObject, List<EmbeddedBeans> embeddedBeansList, List<ReferencedBeans> referencedBeansList) {
-        System.out.println("=================================");
-        Test.msg("public <T> T fromDocument()");
-        System.out.println("=================================");
+       
+        // Test.msg("public <T> T fromDocument()");
+       
         if (dbObject == null) {
-            Test.msg("dbObject == null");
+            // Test.msg("dbObject == null");
             return null;
         }
         this.embeddedBeansList = embeddedBeansList;
@@ -47,7 +47,7 @@ public class DocumentToJavaCouchbase<T> {
         Object object = classDescriptor.newInstance();
         for (FieldDescriptor fieldDescriptor : classDescriptor.getFields()) {
             try {
-                Test.msg(".......Analizando fieldDescriptor " + fieldDescriptor.getName());
+                // Test.msg(".......Analizando fieldDescriptor " + fieldDescriptor.getName());
                 fieldDescriptor.getField().set(object,
                         fromDocumentRecursive(dbObject.get(fieldDescriptor.getName()), fieldDescriptor));
             } catch (Exception e) {
@@ -67,8 +67,8 @@ public class DocumentToJavaCouchbase<T> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private Object fromDocumentRecursive(Object dbObject, FieldDescriptor fieldDescriptor) {
         try {
-            Test.msg("---------------------------------------------------");
-            Test.msg("            fromDocumentRecursive{} " + fieldDescriptor.getName());
+            // Test.msg("---------------------------------------------------");
+            // Test.msg("            fromDocumentRecursive{} " + fieldDescriptor.getName());
 
             //  System.out.println("  fromDocumentRecursive: " + fieldDescriptor.getName());
             if (dbObject == null) {
@@ -78,10 +78,10 @@ public class DocumentToJavaCouchbase<T> {
 
             Class<?> fieldType = fieldDescriptor.getField().getType();
             if (fieldDescriptor.isSimple()) {
-                Test.msg("                   [isSimple] " + fieldDescriptor.getSimpleValue(dbObject));
+                // Test.msg("                   [isSimple] " + fieldDescriptor.getSimpleValue(dbObject));
                 return fieldDescriptor.getSimpleValue(dbObject);
             } else if (fieldDescriptor.isArray()) {
-                Test.msg("                   [ isArray]");
+                // Test.msg("                   [ isArray]");
                 BasicDBList dbList = (BasicDBList) dbObject;
                 if (fieldType.getComponentType().isPrimitive()) {
 
@@ -102,24 +102,24 @@ public class DocumentToJavaCouchbase<T> {
                 Object[] arrayPrototype = (Object[]) Array.newInstance(fieldType.getComponentType(), 0);
                 return list.toArray(arrayPrototype);
             } else if (fieldDescriptor.isList()) {
-                Test.msg("                 [isList()  ]" + fieldDescriptor.getName());
+                // Test.msg("                 [isList()  ]" + fieldDescriptor.getName());
                 if (isEmbedded(fieldDescriptor.getName())) {
-                    Test.msg("                          -->[isEmbedded().a  ]" + fieldDescriptor.getName());
+                    // Test.msg("                          -->[isEmbedded().a  ]" + fieldDescriptor.getName());
 
                         List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
-                    Test.msg("                          -->[isEmbedded().b  ]" + fieldDescriptor.getName());
+                    // Test.msg("                          -->[isEmbedded().b  ]" + fieldDescriptor.getName());
                     List list = (List) fieldDescriptor.newInstance();
-                    Test.msg("                          -->[isEmbedded().c  ]" + fieldDescriptor.getName());
+                    // Test.msg("                          -->[isEmbedded().c  ]" + fieldDescriptor.getName());
                     for (Object listEl : dbList) {
-                        Test.msg("                          -->[isEmbedded().d  ]" + fieldDescriptor.getName());
+                        // Test.msg("                          -->[isEmbedded().d  ]" + fieldDescriptor.getName());
                         if (ReflectionUtils.isSimpleClass(listEl.getClass())) {
-                            Test.msg("                          -->[isEmbedded().e  ]" + fieldDescriptor.getName());
+                            // Test.msg("                          -->[isEmbedded().e  ]" + fieldDescriptor.getName());
                             list.add(listEl);
-                            Test.msg("                          -->[isEmbedded().f  ]" + fieldDescriptor.getName());
+                            // Test.msg("                          -->[isEmbedded().f  ]" + fieldDescriptor.getName());
                         } else {
-                            Test.msg("                          -->[isEmbedded().g  ]" + fieldDescriptor.getName());
+                            // Test.msg("                          -->[isEmbedded().g  ]" + fieldDescriptor.getName());
                             list.add(fromDocument(ReflectionUtils.genericType(fieldDescriptor.getField()), (Document) listEl, embeddedBeansList, referencedBeansList));
-                            Test.msg("                          -->[isEmbedded().h  ]" + fieldDescriptor.getName());
+                            // Test.msg("                          -->[isEmbedded().h  ]" + fieldDescriptor.getName());
                         }
                     }
 
@@ -127,9 +127,9 @@ public class DocumentToJavaCouchbase<T> {
                 } else {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
-                        Test.msg("                    [es Referenciado]");
+                        // Test.msg("                    [es Referenciado]");
                         if (referencedBeans.getLazy()) {
-                            Test.msg("                 [    Lazy == true no carga los relacionados ]");
+                            // Test.msg("                 [    Lazy == true no carga los relacionados ]");
 
                             List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
                             List list = (List) fieldDescriptor.newInstance();
@@ -143,7 +143,7 @@ public class DocumentToJavaCouchbase<T> {
 
                             return list;
                         } else {
-                            Test.msg("                 [    Lazy == false carga los relacionados ]");
+                            // Test.msg("                 [    Lazy == false carga los relacionados ]");
 
                             List<BasicDBObject> dbList = (ArrayList<BasicDBObject>) dbObject;
                             List list = (List) fieldDescriptor.newInstance();
@@ -185,7 +185,7 @@ public class DocumentToJavaCouchbase<T> {
                         }
 
                     } else {
-                        Test.msg("                    No es[Embebido] ni  [Referenciado]");
+                        // Test.msg("                    No es[Embebido] ni  [Referenciado]");
                         List<BasicDBObject> foundDocument = (ArrayList<BasicDBObject>) dbObject;
                         List list = (List) fieldDescriptor.newInstance();
 
@@ -203,7 +203,7 @@ public class DocumentToJavaCouchbase<T> {
                 }
 
             } else if (fieldDescriptor.isSet()) {
-                Test.msg("                  [isSet()  ]");
+                // Test.msg("                  [isSet()  ]");
                 BasicDBList dbList = (BasicDBList) dbObject;
                 Set set = (Set) fieldDescriptor.newInstance();
                 for (Object listEl : dbList) {
@@ -218,7 +218,7 @@ public class DocumentToJavaCouchbase<T> {
                 }
                 return set;
             } else if (fieldDescriptor.isMap()) {
-                Test.msg("                 isMap()  ]");
+                // Test.msg("                 isMap()  ]");
                 DBObject dbMap = (DBObject) dbObject;
                 Map map = (Map) fieldDescriptor.newInstance();
                 for (Object key : dbMap.keySet()) {
@@ -236,9 +236,9 @@ public class DocumentToJavaCouchbase<T> {
                 }
                 return map;
             } else if (fieldDescriptor.isObject()) {
-                Test.msg("                   [isObject] " + fieldDescriptor.getName() + " ]");
+                // Test.msg("                   [isObject] " + fieldDescriptor.getName() + " ]");
                 if (isEmbedded(fieldDescriptor.getName())) {
-                    Test.msg("                  [es Embebido]");
+                    // Test.msg("                  [es Embebido]");
                     Object object = fieldDescriptor.newInstance();
                     for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
                         try {
@@ -254,9 +254,9 @@ public class DocumentToJavaCouchbase<T> {
                 } else {
                     if (isReferenced(fieldDescriptor.getName())) {
                         //Referenciado
-                        Test.msg("                     [es Referenciado] ");
+                        // Test.msg("                     [es Referenciado] ");
                         if (referencedBeans.getLazy()) {
-                            Test.msg("               [    {Lazy == true} No carga los relacionados ]");
+                            // Test.msg("               [    {Lazy == true} No carga los relacionados ]");
                             Object object = fieldDescriptor.newInstance();
                             for (FieldDescriptor childDescriptor : fieldDescriptor.getChildren()) {
                                 try {
@@ -274,7 +274,7 @@ public class DocumentToJavaCouchbase<T> {
                             return object;
 //                       
                         } else {
-                            Test.msg("                 [   Lazy == false carga los relacionados ]");
+                            // Test.msg("                 [   Lazy == false carga los relacionados ]");
                             //cargar todos los relacionads
                             Object object = fieldDescriptor.newInstance();
                             Class cls = Class.forName(referencedBeans.getFacade());
@@ -318,7 +318,7 @@ public class DocumentToJavaCouchbase<T> {
 
                         }
                     } else {
-                        Test.msg("                   [No es Referenced]");
+                        // Test.msg("                   [No es Referenced]");
                         new JmoordbException("@Embedded or @Reference is required for this field " + fieldDescriptor.getName());
                         return new Document();
                     }
