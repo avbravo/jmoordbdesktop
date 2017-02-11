@@ -624,7 +624,12 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
 
         return Optional.empty();
     }
-
+/**
+ * 
+ * @param key
+ * @param value
+ * @return 
+ */
     public Optional<T> find(String key, Object value) {
         list = new ArrayList<>();
         //  Document sortQuery = new Document();
@@ -650,6 +655,39 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
         }
 
         return Optional.empty();
+    }
+    /**
+     * 
+     * @param key
+     * @param value
+     * @return 
+     */
+    public T search(String key, Object value) {
+        list = new ArrayList<>();
+        //  Document sortQuery = new Document();
+        try {
+            String statement = "select * from " + database + " where " + key + " = " + value;
+            N1qlQuery query = N1qlQuery.simple(statement);
+
+            N1qlQueryResult result = getBucket().query(query);
+            for (N1qlQueryRow row : result) {
+
+                Document doc = rowToDocument(row);
+
+                t1 = (T) documentToJavaCouchbase.fromDocument(entityClass, doc, embeddedBeansList, referencedBeansList);
+                list.add(t1);
+                return t1;
+                
+
+            }
+
+        } catch (Exception e) {
+            Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("find() ", e);
+            new JmoordbException("find()");
+        }
+
+        return null;
     }
 
     /**

@@ -386,7 +386,44 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 //        return null;
         return Optional.empty();
     }
+   
+ public T search(String key, Object value) {
+        try {
 
+            //   Object t = entityClass.newInstance();
+            MongoDatabase db = getMongoClient().getDatabase(database);
+
+            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
+
+            haveElements = false;
+            iterable.forEach(new Block<Document>() {
+                @Override
+                public void apply(final Document document) {
+                    try {
+                        haveElements = true;
+                        tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
+                    } catch (Exception e) {
+                        Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
+                        exception = new Exception("find() ", e);
+                    }
+
+                }
+            });
+            if (haveElements) {
+                return tlocal;
+            }
+            return null;
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("find() ", e);
+
+        }
+
+       return null;
+
+    }
+   
     /**
      *
      * @param document
