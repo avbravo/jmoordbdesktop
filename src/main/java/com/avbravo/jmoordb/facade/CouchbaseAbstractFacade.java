@@ -140,7 +140,18 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
      * @return
      */
     public JsonObject toDocument(Object t) {
-        return javaToDocumentCouchbase.toDocument(t, embeddedBeansList, referencedBeansList);
+        JsonObject jsonObject = JsonObject.empty();
+        try {
+          
+              //jsonObject = javaToDocumentCouchbase.toDocument(t, embeddedBeansList, referencedBeansList);
+         jsonObject =     javaToDocumentCouchbase.toDocument(t, embeddedBeansList, referencedBeansList);
+             
+        } catch (Exception e) {
+             Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            new JmoordbException("toDocument() " + e.getLocalizedMessage());
+            exception = new Exception("toDocument " + e.getLocalizedMessage());
+        }
+      return jsonObject;
     }
 
     /**
@@ -187,10 +198,12 @@ public abstract class CouchbaseAbstractFacade<T> implements CouchbaseAbstractInt
             } else {
                 id = (String) getPrimaryKeyValue(t);
             }
-
+Test.msg(" {call toDocument()} ");
             JsonObject doc = toDocument(t);
+            Test.msg(" {save()} "+doc.toString());
 //            String id = UUID.randomUUID().toString();
             JsonDocument document = JsonDocument.create(id, doc);
+            Test.msg(" {document()} "+document.toString());
             JsonDocument response = getBucket().upsert(document);
             return true;
 
