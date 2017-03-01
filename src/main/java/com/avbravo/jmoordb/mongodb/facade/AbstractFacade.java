@@ -5,7 +5,7 @@
  */
 package com.avbravo.jmoordb.mongodb.facade;
 
-import com.avbravo.jmoordb.couchbase.facade.CouchbaseAbstractFacade;
+
 import com.avbravo.jmoordb.DatePatternBeans;
 import com.avbravo.jmoordb.EmbeddedBeans;
 import com.avbravo.jmoordb.FieldBeans;
@@ -1347,12 +1347,12 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                     o = method.invoke(t2);
 
                 } catch (Exception e) {
-                    Logger.getLogger(CouchbaseAbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
                     exception = new Exception("getDocumentPrimaryKey() ", e);
                 }
             }
         } catch (Exception e) {
-            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
             exception = new Exception("getDocumentPrimaryKey() ", e);
         }
         return o;
@@ -1367,7 +1367,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
             }
         } catch (Exception e) {
-            Logger.getLogger(CouchbaseAbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
             exception = new Exception("getDocumentPrimaryKey() ", e);
         }
         return type;
