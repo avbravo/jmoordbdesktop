@@ -85,7 +85,12 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         this.exception = exception;
     }
 
-   
+     @Override 
+    public MongoDatabase getMongoDatabase() {
+        MongoDatabase db = getMongoClient().getDatabase(database);
+        return db;
+    }
+    
 
     public AbstractFacade(Class<T> entityClass, String database, String collection, Boolean... lazy) {
 
@@ -130,12 +135,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
     }
 
-     @Override 
-    public MongoDatabase getMongoDatabase() {
-        MongoDatabase db = getMongoClient().getDatabase(database);
-        return db;
-    }
-    
+   
  
 
     /**
@@ -391,7 +391,8 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         try {
 
             //   Object t = entityClass.newInstance();
-            MongoDatabase db = getMongoClient().getDatabase(database);
+            //MongoDatabase db = getMongoClient().getDatabase(database);
+        MongoDatabase db =    getMongoDatabase();
 
             FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
 
@@ -403,8 +404,8 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
                         haveElements = true;
                         tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
                     } catch (Exception e) {
-                        Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
-                        exception = new Exception("find() ", e);
+                        Logger.getLogger(AbstractFacade.class.getName() + "search()").log(Level.SEVERE, null, e);
+                        exception = new Exception("search() ", e);
                     }
 
                 }
@@ -416,7 +417,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
 
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-            exception = new Exception("find() ", e);
+            exception = new Exception("search() ", e);
 
         }
 
