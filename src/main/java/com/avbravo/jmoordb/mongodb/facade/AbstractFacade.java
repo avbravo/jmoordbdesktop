@@ -86,9 +86,24 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     }
 
      @Override 
-    public MongoDatabase getMongoDatabase() {
-        MongoDatabase db = getMongoClient().getDatabase(database);
-        return db;
+    public MongoDatabase getMongoDatabase() {  
+        try {     
+            if(getMongoClient() == null){
+                System.out.println("conexion es nula");
+            }else{
+                System.out.println("Este conectado ");
+            }
+            getMongoClient().getConnectPoint();
+            System.out.println("---> getConnectPoint()" +getMongoClient().getConnectPoint());
+            MongoDatabase db = getMongoClient().getDatabase(database);
+         
+             return db;
+         } catch (Exception ex) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            new JmoordbException("getMongoDatabase() " + ex.getLocalizedMessage());
+            exception = new Exception("getMongoDatabase() " + ex.getLocalizedMessage());
+        }
+         return null;
     }
     
 
