@@ -16,6 +16,7 @@ import com.avbravo.jmoordb.mongodb.interfaces.AbstractInterface;
 import com.avbravo.jmoordb.mongodb.internal.DocumentToJavaMongoDB;
 import com.avbravo.jmoordb.mongodb.internal.JavaToDocument;
 import com.avbravo.jmoordb.util.Analizador;
+import com.avbravo.jmoordb.util.Test;
 import com.avbravo.jmoordb.util.Util;
 import com.mongodb.Block;
 import com.mongodb.CursorType;
@@ -88,12 +89,12 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
      @Override 
     public MongoDatabase getMongoDatabase() {  
         try {     
-            if(getMongoClient() == null){
-                System.out.println("conexion es nula");
-            }else{
-                System.out.println("Este conectado ");
-            }
-            getMongoClient().getConnectPoint();
+//            if(getMongoClient() == null){
+//                System.out.println("conexion es nula");
+//            }else{
+//                System.out.println("Este conectado ");
+//            }
+         //getMongoClient().getConnectPoint();
             System.out.println("---> getConnectPoint()" +getMongoClient().getConnectPoint());
             MongoDatabase db = getMongoClient().getDatabase(database);
          
@@ -404,7 +405,9 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
    
  public T search(String key, Object value) {
         try {
-
+Test.msg("=====================================================");
+Test.msg("Llego al search()");
+Test.msg("=====================================================");
             //   Object t = entityClass.newInstance();
             //MongoDatabase db = getMongoClient().getDatabase(database);
         MongoDatabase db =    getMongoDatabase();
