@@ -76,7 +76,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
     List<FieldBeans> fieldBeansList = new ArrayList<>();
     Exception exception;
     Util util = new Util();
-
+MongoDatabase db_;
     
     public Exception getException() {
         return exception;
@@ -97,7 +97,11 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
          //getMongoClient().getConnectPoint();
             System.out.println("---> getConnectPoint()" +getMongoClient().getConnectPoint());
             MongoDatabase db = getMongoClient().getDatabase(database);
-         
+         if(db == null){
+             Test.msg("+++AbstractFacade.getMonogDatabase() == null");
+         }else{
+             Test.msg("+++AbstractFacade.getMonogDatabase() != null");
+         }
              return db;
          } catch (Exception ex) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
@@ -148,7 +152,7 @@ public abstract class AbstractFacade<T> implements AbstractInterface {
         if (fieldBeansList.isEmpty()) {
             exception = new Exception("No have fields() ");
         }
-
+db_ = getMongoDatabase();
     }
 
    
@@ -410,10 +414,23 @@ Test.msg("Llego al search()");
 Test.msg("=====================================================");
             //   Object t = entityClass.newInstance();
             //MongoDatabase db = getMongoClient().getDatabase(database);
-        MongoDatabase db =    getMongoDatabase();
-
+     //   MongoDatabase db =    getMongoDatabase();
+//     getMongoClient()
+//         MongoDatabase db = getMongoClient().getDatabase(database);
+        MongoDatabase db = db_;
+         if(db == null){
+             Test.msg("+++AbstractFacade.getMonogDatabase() == null");
+         }else{
+             Test.msg("+++AbstractFacade.getMonogDatabase() != null");
+         }
+if(db == null){
+    Test.msg("+++ db is null");
+    return null;
+}else{
+    Test.msg("+++ db no is null");
+}
             FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, value));
-
+Test.msg("+++ paso iterable");
             haveElements = false;
             iterable.forEach(new Block<Document>() {
                 @Override

@@ -279,7 +279,7 @@ public class DocumentToJavaMongoDB<T> {
                             Test.msg("[   Lazy == false carga los relacionados ]");
                             //cargar todos los relacionads
                             Object object = fieldDescriptor.newInstance();
-                            Class cls = Class.forName(referencedBeans.getFacade());
+                            Class cls = Class.forName(referencedBeans.getFacade());                           
                             Object obj = cls.newInstance();
                             Method method;
 
