@@ -861,6 +861,39 @@ Test.msg("+++ paso iterable");
     }
 
     /**
+     * Requiere que se cree un indice primero
+     * URL:https://docs.mongodb.com/manual/reference/operator/query/text/
+     * Indice: db.planetas.createIndex( { idplaneta: "text" } )
+     * @param key
+     * @param value
+     * @param docSort
+     * @return 
+     */
+    
+    public List<T> findText(String key, String value, Document... docSort) {    
+        Document sortQuery = new Document();
+        list = new ArrayList<>();
+
+        try {
+
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            Object t = entityClass.newInstance();
+            MongoDatabase db = getMongoClient().getDatabase(database);
+ FindIterable<Document> iterable = db.getCollection(collection)
+         .find(new Document("$text", new Document("$search", value)));
+                      
+            list = iterableList(iterable);
+          
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findText()", e);
+        }
+        return list;
+    }
+    /**
      * devuelva la lista de colecciones
      *
      * @return
