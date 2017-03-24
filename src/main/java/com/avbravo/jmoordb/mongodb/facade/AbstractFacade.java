@@ -836,7 +836,7 @@ Test.msg("+++ paso iterable");
      * @param docSort
      * @return
      */
-    public List<T> findlike(String key, String value, Document... docSort) {
+    public List<T> findLike(String key, String value, Document... docSort) {
         Document sortQuery = new Document();
         list = new ArrayList<>();
 
