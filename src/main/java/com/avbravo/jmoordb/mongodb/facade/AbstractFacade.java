@@ -836,6 +836,29 @@ Test.msg("+++ paso iterable");
      * @param docSort
      * @return
      */
+    public List<T> findLikeOld(String key, String value, Document... docSort) {
+        Document sortQuery = new Document();
+        list = new ArrayList<>();
+
+        try {
+
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            Object t = entityClass.newInstance();
+            Pattern regex = Pattern.compile(value);
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, regex)).sort(sortQuery);
+            list = iterableList(iterable);
+
+        } catch (Exception e) {
+            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findLike()", e);
+        }
+        return list;
+    }
     public List<T> findLike(String key, String value, Document... docSort) {
         Document sortQuery = new Document();
         list = new ArrayList<>();
