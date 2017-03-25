@@ -836,7 +836,7 @@ Test.msg("+++ paso iterable");
      * @param docSort
      * @return
      */
-    public List<T> findLikeOld(String key, String value, Document... docSort) {
+       public List<T> findRegex(String key, String value, Boolean caseSensitive, Document... docSort) {
         Document sortQuery = new Document();
         list = new ArrayList<>();
 
@@ -850,35 +850,22 @@ Test.msg("+++ paso iterable");
             Pattern regex = Pattern.compile(value);
 
             MongoDatabase db = getMongoClient().getDatabase(database);
-            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, regex)).sort(sortQuery);
-            list = iterableList(iterable);
-
-        } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-            exception = new Exception("findLike()", e);
-        }
-        return list;
-    }
-    public List<T> findLike(String key, String value, Document... docSort) {
-        Document sortQuery = new Document();
-        list = new ArrayList<>();
-
-        try {
-
-            if (docSort.length != 0) {
-                sortQuery = docSort[0];
+            FindIterable<Document> iterable;
+            if (!caseSensitive) {
+                iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value))).sort(sortQuery);
+//iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", regex)));
+            } else {
+                iterable = db.getCollection(collection)
+                        .find(new Document(key, new Document("$regex", value).append("$options", "si"))).sort(sortQuery);
+//               iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", regex).append("$options", "si")));
 
             }
-            Object t = entityClass.newInstance();
-            Pattern regex = Pattern.compile(value);
 
-            MongoDatabase db = getMongoClient().getDatabase(database);
-            FindIterable<Document> iterable = db.getCollection(collection).find(new Document(key, regex)).sort(sortQuery);
             list = iterableList(iterable);
 
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
-            exception = new Exception("findLike()", e);
+            exception = new Exception("findRegex()", e);
         }
         return list;
     }
@@ -887,13 +874,15 @@ Test.msg("+++ paso iterable");
      * Requiere que se cree un indice primero
      * URL:https://docs.mongodb.com/manual/reference/operator/query/text/
      * Indice: db.planetas.createIndex( { idplaneta: "text" } )
+     *
      * @param key
      * @param value
+     * @param caseSensitive = true
+     * @param diacriticSensitive = true
      * @param docSort
-     * @return 
+     * @return
      */
-    
-    public List<T> findText(String key, String value, Document... docSort) {    
+    public List<T> findText(String key, String value, Boolean caseSensitive, Boolean diacriticSensitive, Document... docSort) {
         Document sortQuery = new Document();
         list = new ArrayList<>();
 
@@ -905,17 +894,21 @@ Test.msg("+++ paso iterable");
             }
             Object t = entityClass.newInstance();
             MongoDatabase db = getMongoClient().getDatabase(database);
- FindIterable<Document> iterable = db.getCollection(collection)
-         .find(new Document("$text", new Document("$search", value)));
-                      
+            FindIterable<Document> iterable = db.getCollection(collection)
+                    .find(new Document("$text", new Document("$search", value)
+                            .append("$caseSensitive", caseSensitive)
+                            .append("$diacriticSensitive", diacriticSensitive)));
+
             list = iterableList(iterable);
-          
+
         } catch (Exception e) {
             Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findText()", e);
         }
         return list;
     }
+
+
     /**
      * devuelva la lista de colecciones
      *
