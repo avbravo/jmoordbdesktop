@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.mongodb.interfaces;
+package com.avbravo.jmoordb.mongodb.repository;
 
 import com.mongodb.client.MongoDatabase;
 import java.lang.reflect.Field;
@@ -13,7 +13,7 @@ import org.bson.Document;
  *
  * @author avbravo
  */
-public interface AbstractInterface <T>{
+public interface InterfaceRepository <T>{
      public MongoDatabase getMongoDatabase() ;
 //     public Document findOne();
       public T findById(String key, String value);

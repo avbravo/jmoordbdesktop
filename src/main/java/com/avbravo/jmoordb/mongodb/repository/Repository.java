@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.mongodb.facade;
+package com.avbravo.jmoordb.mongodb.repository;
 
 
 import com.avbravo.jmoordb.DatePatternBeans;
@@ -12,7 +12,6 @@ import com.avbravo.jmoordb.FieldBeans;
 import com.avbravo.jmoordb.JmoordbException;
 import com.avbravo.jmoordb.PrimaryKey;
 import com.avbravo.jmoordb.ReferencedBeans;
-import com.avbravo.jmoordb.mongodb.interfaces.AbstractInterface;
 import com.avbravo.jmoordb.mongodb.internal.DocumentToJavaMongoDB;
 import com.avbravo.jmoordb.mongodb.internal.JavaToDocument;
 import com.avbravo.jmoordb.util.Analizador;
@@ -55,7 +54,7 @@ import org.bson.conversions.Bson;
  * @author avbravo
  * @param <T>
  */
-public abstract class AbstractFacade<T> implements AbstractInterface {
+public abstract class Repository<T> implements InterfaceRepository {
  protected abstract MongoClient getMongoClient();
 
     Integer contador = 0;
@@ -104,7 +103,7 @@ MongoDatabase db_;
          }
              return db;
          } catch (Exception ex) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, ex);
             new JmoordbException("getMongoDatabase() " + ex.getLocalizedMessage());
             exception = new Exception("getMongoDatabase() " + ex.getLocalizedMessage());
         }
@@ -112,7 +111,7 @@ MongoDatabase db_;
     }
     
 
-    public AbstractFacade(Class<T> entityClass, String database, String collection, Boolean... lazy) {
+    public Repository(Class<T> entityClass, String database, String collection, Boolean... lazy) {
 
         this.entityClass = entityClass;
         this.database = database;
@@ -190,7 +189,7 @@ db_ = getMongoDatabase();
             return true;
 
         } catch (Exception ex) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, ex);
             new JmoordbException("save() " + ex.getLocalizedMessage());
             exception = new Exception("save() " + ex.getLocalizedMessage());
         }
@@ -229,7 +228,7 @@ db_ = getMongoDatabase();
             return true;
 
         } catch (Exception ex) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, ex);
             new JmoordbException("save() " + ex.getLocalizedMessage());
             exception = new Exception("save() " + ex.getLocalizedMessage());
         }
@@ -263,12 +262,12 @@ db_ = getMongoDatabase();
                     doc.put(p.getName(), method.invoke(t2));
 
                 } catch (Exception e) {
-                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
                     exception = new Exception("getDocumentPrimaryKey() ", e);
                 }
             }
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
             exception = new Exception("getDocumentPrimaryKey() ", e);
         }
         return doc;
@@ -286,7 +285,7 @@ db_ = getMongoDatabase();
                 doc.put(p.getName(), 1);
             });
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "getIndexPrimaryKey()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "getIndexPrimaryKey()").log(Level.SEVERE, null, e);
             exception = new Exception("getIndexPrimaryKey() ", e);
         }
         return doc;
@@ -309,7 +308,7 @@ db_ = getMongoDatabase();
             getMongoDatabase().getCollection(collection).createIndex(docIndex);
             return true;
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "createIndex()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "createIndex()").log(Level.SEVERE, null, e);
             exception = new Exception("createIndex() ", e);
         }
         return false;
@@ -336,12 +335,12 @@ db_ = getMongoDatabase();
 
                     return find(doc);
                 } catch (Exception e) {
-                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
                     exception = new Exception("findById() ", e);
                 }
             }
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "findById()").log(Level.SEVERE, null, e);
             exception = new Exception("findById() ", e);
         }
         return Optional.empty();
@@ -360,7 +359,7 @@ db_ = getMongoDatabase();
             }
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "findById()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "findById()").log(Level.SEVERE, null, e);
             exception = new Exception("findById() ", e);
         }
         return Optional.empty();
@@ -383,7 +382,7 @@ db_ = getMongoDatabase();
                         haveElements = true;
                         tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
                     } catch (Exception e) {
-                        Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
+                        Logger.getLogger(Repository.class.getName() + "find()").log(Level.SEVERE, null, e);
                         exception = new Exception("find() ", e);
                     }
 
@@ -398,7 +397,7 @@ db_ = getMongoDatabase();
             return Optional.empty();
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
 
         }
@@ -439,7 +438,7 @@ Test.msg("+++ paso iterable");
                         haveElements = true;
                         tlocal = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
                     } catch (Exception e) {
-                        Logger.getLogger(AbstractFacade.class.getName() + "search()").log(Level.SEVERE, null, e);
+                        Logger.getLogger(Repository.class.getName() + "search()").log(Level.SEVERE, null, e);
                         exception = new Exception("search() ", e);
                     }
 
@@ -451,7 +450,7 @@ Test.msg("+++ paso iterable");
             return null;
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("search() ", e);
 
         }
@@ -475,7 +474,7 @@ Test.msg("+++ paso iterable");
             return Optional.of(tlocal);
             //return (T) tlocal;
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
             new JmoordbException("find()");
         }
@@ -491,7 +490,7 @@ Test.msg("+++ paso iterable");
             return tlocal;
             //return (T) tlocal;
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
             new JmoordbException("find()");
         }
@@ -517,7 +516,7 @@ Test.msg("+++ paso iterable");
                         haveElements = true;
                         t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
                     } catch (Exception e) {
-                        Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
+                        Logger.getLogger(Repository.class.getName() + "find()").log(Level.SEVERE, null, e);
                         exception = new Exception("find() ", e);
                     }
 
@@ -525,7 +524,7 @@ Test.msg("+++ paso iterable");
             });
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("iterableSimple() ", e);
 
         }
@@ -546,7 +545,7 @@ Test.msg("+++ paso iterable");
                         t1 = (T) documentToJava.fromDocument(entityClass, document, embeddedBeansList, referencedBeansList);
                         l.add(t1);
                     } catch (Exception e) {
-                        Logger.getLogger(AbstractFacade.class.getName() + "find()").log(Level.SEVERE, null, e);
+                        Logger.getLogger(Repository.class.getName() + "find()").log(Level.SEVERE, null, e);
                         exception = new Exception("find() ", e);
                     }
 
@@ -554,7 +553,7 @@ Test.msg("+++ paso iterable");
             });
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("iterableSimple() ", e);
 
         }
@@ -582,7 +581,7 @@ Test.msg("+++ paso iterable");
                         try {
                             contador++;
                         } catch (Exception e) {
-                            Logger.getLogger(AbstractFacade.class.getName() + "count()").log(Level.SEVERE, null, e);
+                            Logger.getLogger(Repository.class.getName() + "count()").log(Level.SEVERE, null, e);
                             exception = new Exception("count()", e);
                         }
                     }
@@ -595,7 +594,7 @@ Test.msg("+++ paso iterable");
             }
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "count()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "count()").log(Level.SEVERE, null, e);
             exception = new Exception("count()", e);
         }
         return contador;
@@ -620,7 +619,7 @@ Test.msg("+++ paso iterable");
             list = iterableList(iterable);
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("find() ", e);
             new JmoordbException("find()");
         }
@@ -661,12 +660,12 @@ Test.msg("+++ paso iterable");
                 t1 = (T) documentToJava.fromDocument(entityClass, iterable, embeddedBeansList, referencedBeansList);
 
             } catch (Exception e) {
-                Logger.getLogger(AbstractFacade.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
+                Logger.getLogger(Repository.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
                 exception = new Exception("findOneAndUpdate()", e);
             }
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findOneAndUpdate()", e);
         }
 
@@ -707,12 +706,12 @@ Test.msg("+++ paso iterable");
 //                Method method = entityClass.getDeclaredMethod("toPojo", Document.class);
 //                list.add((T) method.invoke(t, iterable));
             } catch (Exception e) {
-                Logger.getLogger(AbstractFacade.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
+                Logger.getLogger(Repository.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
                 exception = new Exception("findOneAndUpdate()", e);
             }
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findOneAndUpdate()", e);
         }
 
@@ -745,12 +744,12 @@ Test.msg("+++ paso iterable");
 //                Method method = entityClass.getDeclaredMethod("toPojo", Document.class);
 //                list.add((T) method.invoke(t, iterable));
             } catch (Exception e) {
-                Logger.getLogger(AbstractFacade.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
+                Logger.getLogger(Repository.class.getName() + "findOneAndUpdate()").log(Level.SEVERE, null, e);
                 exception = new Exception("findOneAndUpdate()", e);
             }
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findOneAndUpdate()", e);
         }
 
@@ -777,7 +776,7 @@ Test.msg("+++ paso iterable");
             list = iterableList(iterable);
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findBy() ", e);
         }
         return list;
@@ -796,7 +795,7 @@ Test.msg("+++ paso iterable");
             FindIterable<Document> iterable = db.getCollection(collection).find(doc).sort(sortQuery);
             list = iterableList(iterable);
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findBy() ", e);
         }
         return list;
@@ -823,7 +822,7 @@ Test.msg("+++ paso iterable");
             FindIterable<Document> iterable = db.getCollection(collection).find(filter).sort(sortQuery);
             list = iterableList(iterable);
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findBy() ", e);
         }
         return list;
@@ -852,11 +851,11 @@ Test.msg("+++ paso iterable");
             MongoDatabase db = getMongoClient().getDatabase(database);
             FindIterable<Document> iterable;
             if (!caseSensitive) {
-                iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value))).sort(sortQuery);
+                iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", "^"+value))).sort(sortQuery);
 //iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", regex)));
             } else {
                 iterable = db.getCollection(collection)
-                        .find(new Document(key, new Document("$regex", value).append("$options", "si"))).sort(sortQuery);
+                        .find(new Document(key, new Document("$regex", "^"+value).append("$options", "i"))).sort(sortQuery);
 //               iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", regex).append("$options", "si")));
 
             }
@@ -864,12 +863,56 @@ Test.msg("+++ paso iterable");
             list = iterableList(iterable);
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findRegex()", e);
         }
         return list;
     }
 
+       
+         // <editor-fold defaultstate="collapsed" desc="findRegexInText">
+    /**
+     *
+     * @param key
+     * @param value
+     * @param docSort
+     * @return una lista en base a la busqueda de la palabra en cualquier posicion
+     */
+    public List<T> findRegexInText(String key, String value, Boolean caseSensitive, Document... docSort) {
+        Document sortQuery = new Document();
+        list = new ArrayList<>();
+
+        try {
+
+            if (docSort.length != 0) {
+                sortQuery = docSort[0];
+
+            }
+            Object t = entityClass.newInstance();
+            Pattern regex = Pattern.compile(value);
+
+            MongoDatabase db = getMongoClient().getDatabase(database);
+            FindIterable<Document> iterable;
+            if (!caseSensitive) {
+                iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", value))).sort(sortQuery);
+//iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", regex)));
+            } else {
+                iterable = db.getCollection(collection)
+                        .find(new Document(key, new Document("$regex", value).append("$options", "i"))).sort(sortQuery);
+//               iterable = db.getCollection(collection).find(new Document(key, new Document("$regex", regex).append("$options", "si")));
+
+            }
+
+            list = iterableList(iterable);
+
+        } catch (Exception e) {
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
+            exception = new Exception("findRegex()", e);
+        }
+        return list;
+    }
+    
+    // </editor-fold>
     /**
      * Requiere que se cree un indice primero
      * URL:https://docs.mongodb.com/manual/reference/operator/query/text/
@@ -902,7 +945,7 @@ Test.msg("+++ paso iterable");
             list = iterableList(iterable);
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findText()", e);
         }
         return list;
@@ -921,7 +964,7 @@ Test.msg("+++ paso iterable");
                 list.add(name.get("name").toString());
             }
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "drop()").log(Level.SEVERE, null, e);
             exception = new Exception("listCollecctions() ", e);
         }
         return list;
@@ -943,7 +986,7 @@ Test.msg("+++ paso iterable");
             }
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "existsCollection()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "existsCollection()").log(Level.SEVERE, null, e);
             exception = new Exception("existsCollection() ", e);
         }
         return false;
@@ -960,7 +1003,7 @@ Test.msg("+++ paso iterable");
             getMongoDatabase().createCollection(nameCollection);
             return true;
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "existsCollection()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "existsCollection()").log(Level.SEVERE, null, e);
             exception = new Exception("existsCollection() ", e);
         }
         return false;
@@ -982,7 +1025,7 @@ Test.msg("+++ paso iterable");
             return false;
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "drop()").log(Level.SEVERE, null, e);
             exception = new Exception("drop() ", e);
         }
         return false;
@@ -1002,7 +1045,7 @@ Test.msg("+++ paso iterable");
             return true;
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "drop()").log(Level.SEVERE, null, e);
             exception = new Exception("drop() ", e);
         }
         return false;
@@ -1019,7 +1062,7 @@ Test.msg("+++ paso iterable");
             return true;
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "drop()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "drop()").log(Level.SEVERE, null, e);
             exception = new Exception("drop() ", e);
         }
         return false;
@@ -1046,7 +1089,7 @@ Test.msg("+++ paso iterable");
             list = iterableList(iterable);
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("findHelperSort()", e);
         }
         return list;
@@ -1087,7 +1130,7 @@ Test.msg("+++ paso iterable");
             list = iterableList(iterable);
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
             exception = new Exception("helpers()", e);
         }
         return list;
@@ -1207,7 +1250,7 @@ Test.msg("+++ paso iterable");
                 return true;
             }
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "delete()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "delete()").log(Level.SEVERE, null, e);
             exception = new Exception("delete() ", e);
         }
         return false;
@@ -1227,7 +1270,7 @@ Test.msg("+++ paso iterable");
             }
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "remove()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "remove()").log(Level.SEVERE, null, e);
             exception = new Exception("remove() ", e);
         }
         return false;
@@ -1245,7 +1288,7 @@ Test.msg("+++ paso iterable");
             DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(doc);
             cont = (int) dr.getDeletedCount();
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
             exception = new Exception("deleteMany() ", e);
         }
         return cont;
@@ -1262,7 +1305,7 @@ Test.msg("+++ paso iterable");
             DeleteResult dr = getMongoDatabase().getCollection(collection).deleteMany(doc);
             cont = (int) dr.getDeletedCount();
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "deleteManye()").log(Level.SEVERE, null, e);
             exception = new Exception("deleteMany() ", e);
         }
         return cont;
@@ -1280,7 +1323,7 @@ Test.msg("+++ paso iterable");
 
             cont = (int) dr.getDeletedCount();
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "removeDocument()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "removeDocument()").log(Level.SEVERE, null, e);
             exception = new Exception("removeAll() ", e);
         }
         return cont;
@@ -1307,7 +1350,7 @@ Test.msg("+++ paso iterable");
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
             exception = new Exception("updateOne() ", e);
         }
         return 0;
@@ -1322,7 +1365,7 @@ Test.msg("+++ paso iterable");
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
             exception = new Exception("updateOne() ", e);
         }
         return 0;
@@ -1344,7 +1387,7 @@ Test.msg("+++ paso iterable");
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "updateMany()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "updateMany()").log(Level.SEVERE, null, e);
             exception = new Exception("updateMany() ", e);
         }
         return 0;
@@ -1367,7 +1410,7 @@ Test.msg("+++ paso iterable");
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "replaceOne()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "replaceOne()").log(Level.SEVERE, null, e);
             exception = new Exception("replaceOne() ", e);
         }
         return 0;
@@ -1389,7 +1432,7 @@ Test.msg("+++ paso iterable");
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "replaceOne()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "replaceOne()").log(Level.SEVERE, null, e);
             exception = new Exception("replaceOne() ", e);
         }
         return 0;
@@ -1411,7 +1454,7 @@ Test.msg("+++ paso iterable");
             return (int) updateResult.getModifiedCount();
 
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "updateOne()").log(Level.SEVERE, null, e);
             exception = new Exception("updateOne() ", e);
         }
         return 0;
@@ -1432,12 +1475,12 @@ Test.msg("+++ paso iterable");
                     o = method.invoke(t2);
 
                 } catch (Exception e) {
-                    Logger.getLogger(AbstractFacade.class.getName()).log(Level.SEVERE, null, e);
+                    Logger.getLogger(Repository.class.getName()).log(Level.SEVERE, null, e);
                     exception = new Exception("getDocumentPrimaryKey() ", e);
                 }
             }
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
             exception = new Exception("getDocumentPrimaryKey() ", e);
         }
         return o;
@@ -1452,7 +1495,7 @@ Test.msg("+++ paso iterable");
 
             }
         } catch (Exception e) {
-            Logger.getLogger(AbstractFacade.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
+            Logger.getLogger(Repository.class.getName() + "getDocumentPrimaryKey()").log(Level.SEVERE, null, e);
             exception = new Exception("getDocumentPrimaryKey() ", e);
         }
         return type;

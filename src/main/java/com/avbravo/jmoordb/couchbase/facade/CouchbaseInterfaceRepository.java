@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.avbravo.jmoordb.couchbase.interfaces;
+package com.avbravo.jmoordb.couchbase.facade;
 
 import com.couchbase.client.java.Bucket;
 
@@ -11,7 +11,7 @@ import com.couchbase.client.java.Bucket;
  *
  * @author avbravo
  */
-public interface CouchbaseAbstractInterface <T>{
+public interface CouchbaseInterfaceRepository <T>{
       public Bucket getBucket();
       public T findById(String key, String value);
       public T findById(String key, Integer value);
