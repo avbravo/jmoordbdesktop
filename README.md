@@ -1,4 +1,4 @@
-# jmoordb
+# jmoordbdesktop
 Object Documment Mapper for Java 
 Mapper for MongoDB ,OrientDB and Couchbase
 
